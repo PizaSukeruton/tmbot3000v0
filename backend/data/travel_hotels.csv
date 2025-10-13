@@ -1,0 +1,5 @@
+show_id,date,name,address,check_in_date,check_out_date,confirmation
+#605001,2025-10-24,The Westin Brisbane,222 Margaret Street Brisbane QLD 4000,2025-10-24,2025-10-26,HTL789
+#605002,2025-10-25,The Westin Brisbane,222 Margaret Street Brisbane QLD 4000,2025-10-24,2025-10-26,HTL789
+#605003,2025-10-26,Hilton Adelaide,233 Victoria Square Adelaide SA 5000,2025-10-26,2025-10-28,HTL345
+#605004,2025-10-27,Hilton Adelaide,233 Victoria Square Adelaide SA 5000,2025-10-26,2025-10-28,HTL345

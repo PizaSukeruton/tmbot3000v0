@@ -1,0 +1,41 @@
+show_id,category,note,priority,created_by
+#605002,crew,Drum Tech: Marcus Chen - contact 0412-555-0101,high,Tour Manager
+#605002,crew,Guitar Tech: Jamie Rivera - contact 0412-555-0102,high,Tour Manager
+#605002,crew,Keyboard Tech: Alex Thompson - contact 0412-555-0103,high,Tour Manager
+#605002,crew,Percussion Tech: Sam Martinez - contact 0412-555-0104,high,Tour Manager
+#605002,crew,FOH Tech: Chris Anderson - contact 0412-555-0105,high,Tour Manager
+#605002,crew,Monitor Tech: Jordan Lee - contact 0412-555-0106,high,Tour Manager
+#605002,crew,Lighting Tech: Taylor Swift - contact 0412-555-0107,high,Tour Manager
+#605002,crew,Stage Tech: Morgan Blake - contact 0412-555-0108,high,Tour Manager
+#605002,crew,Production Manager: Riley Cooper - contact 0412-555-0109,critical,Tour Manager
+#605002,crew,Driver: Casey Brooks - contact 0412-555-0110,critical,Tour Manager
+#605002,crew,Runner: Avery Stone - contact 0412-555-0111,medium,Tour Manager
+#605002,hospitality,Per Diem: $85 AUD per person per day,high,Accountant
+#605002,hospitality,Catering: Hot meals at 12pm and 6pm - vegetarian options available,high,Tour Manager
+#605002,hospitality,Buyout: $45 per person if catering not provided,medium,Accountant
+#605002,hospitality,Rider: Full rider details in tour book section 3.2,critical,Tour Manager
+#605002,hospitality,Guest List: 25 comp tickets allocated - submit names by 5pm show day,high,Tour Manager
+#605002,hospitality,Laundry: Service available at hotel - items collected daily at 9am,low,Tour Manager
+#605002,hospitality,Meet and Greet: 4:30pm in Green Room A - 15 guests maximum,medium,Artist Relations
+#605002,logistics,Laminate: All crew must wear AA laminates - collect from production office,critical,Production Manager
+#605002,logistics,Day Sheet: Distributed via email at 7am - check production office for copies,high,Tour Manager
+#605002,production,DB Limit: 102dB at FOH position - strictly enforced by venue,critical,Venue Manager
+#605002,production,Support Bands: The Echoes (7:30-8:00pm) - contact: echoes@bandmail.com,high,Promoter
+#605002,production,Support Band Set Times: 7:30pm doors, 8:00pm support, 9:00pm changeover, 9:15pm headliner,high,Production Manager
+#605002,production,Set List: Final set list approved - 18 songs, 90min set length,high,Artist
+#605002,production,Curfew: Hard curfew 11pm - council noise restrictions,critical,Venue Manager
+#605002,media,Press Schedule: Radio interview 2pm, TV interview 3pm,high,Publicist
+#605002,media,Press Commitments: 3 media slots confirmed - see day sheet for details,medium,Publicist
+#605002,logistics,Promoter: Live Nation Brisbane - David Kim 0412-555-0115,critical,Booking Agent
+#605002,logistics,Support Band Contact: The Echoes manager - Emma Walsh 0412-555-0116,medium,Promoter
+#605002,production,Production Meeting: 1pm in production office - all dept heads required,high,Production Manager
+#605002,production,FOH: Front of House position - mix engineer Chris Anderson,high,Production Manager
+#605002,production,BOH: Back of House areas include green rooms and production office,medium,Venue Manager
+#605001,logistics,Travel Day: Sydney to Brisbane - Distance: 982km - Flight Time: 1h30m,high,Tour Manager
+#605001,logistics,Group Check In: 11:45am Sydney Airport T1 - 12 passengers checking in together for QF544,high,Tour Manager
+#605001,logistics,Self Check In: Qantas app available - use booking ref ABC123,medium,Tour Manager
+#605001,logistics,Luggage Allowance: 23kg checked bag + 7kg carry-on per person,medium,Tour Manager
+#605001,logistics,Oversized Item: 3x guitar flight cases pre-approved - collect at oversized luggage,medium,Tour Manager
+#605002,logistics,Show Day: Brisbane Entertainment Centre - full performance day,critical,Tour Manager
+#605003,logistics,Travel Day: Brisbane to Adelaide - Distance: 1618km - Flight Time: 2h30m,high,Tour Manager
+#605003,logistics,Day Off: October 27th - no scheduled activities in Adelaide,low,Tour Manager

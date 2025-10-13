@@ -1,0 +1,5 @@
+show_id,date,venue_id,venue_name,city,state,country,doors_time,show_time,soundcheck_time,load_in_time,load_out_time,curfew_time,lobby_call_time,departure_time,airport_call_time,band_call_time,checkout_time,crew_call_time,set_length,set_times,ticket_status,timezone
+#605001,2025-10-24,#606003,Brisbane Entertainment Centre,Brisbane,QLD,Australia,,,,,,,14:00,,,10:00,,,Travel Day,,Australia/Brisbane
+#605002,2025-10-25,#606003,Brisbane Entertainment Centre,Brisbane,QLD,Australia,19:00,20:00,16:00,12:00,23:30,23:00,,,,,,,90m,20:00-21:30,Sold Out,Australia/Brisbane
+#605003,2025-10-26,#606004,Adelaide Entertainment Centre,Adelaide,SA,Australia,,,,,,,09:00,14:30,12:45,,08:00,,,Travel Day,,Australia/Adelaide
+#605004,2025-10-27,#606004,Adelaide Entertainment Centre,Adelaide,SA,Australia,19:00,20:00,16:00,12:00,23:30,23:00,,,,,,,90m,20:00-21:30,On Sale,Australia/Adelaide

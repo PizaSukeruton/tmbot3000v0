@@ -1,0 +1,230 @@
+// backend/services/tmMessageProcessor.js
+// Orchestrates message handling: match intent, generate AI response, persist to DB.
+
+const pool = require('../db/pool');
+const tmIntentMatcher = require('./tmIntentMatcher');
+const aiEngine = require('./tmAiEngine');
+const NextStepLogicFilter = require('./tmNextStepLogic');
+const path = require('path');
+const { createCsvDataSource } = require('./csvDataSource');
+
+class TmMessageProcessor {
+  constructor() {
+    this.pool = pool;
+    this.intentMatcher = tmIntentMatcher;
+    this.aiEngine = aiEngine;
+    
+    // Initialize CSV data source and Next Step Logic
+    this.csvDataSource = createCsvDataSource({ dataDir: path.join(__dirname, '..', 'data') });
+    this.nextStepFilter = new NextStepLogicFilter(this.csvDataSource, pool);
+    
+    // Session storage for context
+    this.sessions = new Map();
+  }
+
+  /**
+   * Main entry: process one inbound message.
+   * @param {string} content
+   * @param {object} convoContext
+   * @param {object} member
+   */
+  async processMessage(content, convoContext, member) {
+    let intent, aiResponse;
+    
+    // Get or create session
+    const session = this.getSession(member.member_id);
+
+    // Check if this is a confirmation response to a pending query
+    if (session.pendingQuery && this.isConfirmationResponse(content)) {
+      return this.handleConfirmation(member.member_id, content, convoContext, member);
+    }
+
+    // ---- Intent stage ----
+    try {
+      intent = await this.intentMatcher.matchIntent(
+        content,
+        { last_entities: this.pickLastEntities(convoContext) },
+        member
+      );
+      console.log("[MESSAGE-PROCESSOR] Matched intent:", JSON.stringify(intent));
+    } catch (err) {
+      console.error('[MESSAGE-PROCESSOR] Intent match failed:', err.message);
+      // Optionally return an error response or proceed with a default intent
+      intent = { type: 'unknown', confidence: 0, entities: {} };
+    }
+
+    // ---- Next Step Logic Filter ----
+    const filteredData = await this.nextStepFilter.filter({
+      intent: intent,
+      query: content,
+      entities: intent.entities || {},
+      sessionContext: session.context || {}
+    });
+    console.log("[MESSAGE-PROCESSOR] Filtered data:", JSON.stringify(filteredData));
+
+    // Check if we need confirmation
+    if (filteredData.nextStepProcessed && filteredData.needsConfirmation) {
+      // Store pending query in session
+      session.pendingQuery = {
+        ...filteredData,
+        originalIntent: intent,
+        originalQuery: content
+      };
+      
+      // Generate response with assumed context
+      const response = await this.aiEngine.generateResponse({
+        message: content,
+        intent: {...intent, assumedContext: filteredData.assumedContext, needsConfirmation: filteredData.needsConfirmation},
+        context: convoContext,
+        member,
+        session: session
+      });
+      
+      // Only add confirmation prompt if response seems incomplete
+      if (filteredData.needsConfirmation && response.type !== "travel_info" && 
+          response.type !== "venue_info" && response.type !== "personnel") {
+        const finalResponse = {
+          ...response,
+          text: filteredData.confirmationPrompt ? `${response.text}\n\n${filteredData.confirmationPrompt}` : response.text
+        };
+        return { intent, aiResponse: finalResponse };
+      }
+      
+      // Store context if provided by AI response
+      if (response.context && session) {
+        session.context = response.context;
+        console.log("[MESSAGE-PROCESSOR] Stored context in session:", session.context);
+      }
+      
+      return { intent, aiResponse: response };
+    }
+
+    // ---- AI Response stage ----
+    try {
+      if (!this.aiEngine || !this.aiEngine.generateResponse) {
+        throw new Error('AI Engine not properly initialized');
+      }
+      
+      // Use filtered data if available, otherwise use original intent
+      const processedIntent = filteredData.assumedContext ? 
+        { ...intent, context: filteredData.assumedContext } : 
+        intent;
+      
+      // Pass session context to AI engine
+      aiResponse = await this.aiEngine.generateResponse({
+        message: content,
+        intent: processedIntent,
+        context: { ...convoContext, sessionContext: session.context || {} },
+        member,
+        session: session
+      });
+      
+      // Store context if provided by AI response
+      if (aiResponse.context && session) {
+        session.context = aiResponse.context;
+        console.log("[MESSAGE-PROCESSOR] Stored context in session:", session.context);
+      }
+    } catch (err) {
+      console.error('[MESSAGE-PROCESSOR] AI generation failed:', err.message);
+      aiResponse = {
+        text: "I'm having trouble processing your request. Please try again.",
+        type: 'error'
+      };
+    }
+
+    return { intent, aiResponse };
+  }
+  
+  // Check if message is likely a confirmation response
+  isConfirmationResponse(message) {
+    const confirmationPatterns = [
+      /^(yes|no|yeah|nope|yep|nah)$/i,
+      /^(correct|wrong|right|incorrect)$/i,
+      /^(that's right|that's wrong|that's it|not that one)$/i,
+      /^(exactly|different|other)$/i
+    ];
+    
+    return confirmationPatterns.some(pattern => pattern.test(message.trim()));
+  }
+  
+  // Handle confirmation responses
+  async handleConfirmation(memberId, message, convoContext, member) {
+    const session = this.getSession(memberId);
+    const pendingQuery = session.pendingQuery;
+    
+    if (!pendingQuery) {
+      return this.processMessage(message, convoContext, member);
+    }
+    
+    const result = await this.nextStepFilter.handleConfirmation(
+      message,
+      pendingQuery.originalQuery,
+      pendingQuery.assumedContext
+    );
+    
+    if (result.confirmed) {
+      // Process original query with confirmed context
+      session.context = result.context;
+      const response = await this.aiEngine.generateResponse({
+        message: pendingQuery.originalQuery,
+        intent: {...pendingQuery.originalIntent, context: result.context, confirmed: true},
+        context: convoContext,
+        member,
+        session: session
+      });
+      
+      // Clear pending query
+      session.pendingQuery = null;
+      
+      return { intent: pendingQuery.originalIntent, aiResponse: response };
+    } else if (result.confirmed === false) {
+      // User said no - ask for clarification but keep the pending query type
+      // session.pendingQuery = null; // Don't clear it yet
+      return {
+        intent: { type: 'clarification' },
+        aiResponse: {
+          text: result.prompt,
+          type: 'clarification'
+        }
+      };
+    } else {
+      // Unclear response
+      return {
+        intent: { type: 'clarification' },
+        aiResponse: {
+          text: result.prompt,
+          type: 'clarification'
+        }
+      };
+    }
+  }
+  
+  // Session management
+  getSession(memberId) {
+    if (!this.sessions.has(memberId)) {
+      this.sessions.set(memberId, {
+        memberId,
+        responseMode: 'basic', // default to basic mode
+        context: {},
+        pendingQuery: null,
+        lastActivity: new Date()
+      });
+    }
+    
+    const session = this.sessions.get(memberId);
+    session.lastActivity = new Date();
+    return session;
+  }
+
+  pickLastEntities(convoContext) {
+    // Pick last entities from conversation context
+    if (!convoContext || !convoContext.messages || convoContext.messages.length === 0) {
+      return {};
+    }
+    
+    const lastMessage = convoContext.messages[convoContext.messages.length - 1];
+    return lastMessage.entities || {};
+  }
+}
+
+module.exports = new TmMessageProcessor();

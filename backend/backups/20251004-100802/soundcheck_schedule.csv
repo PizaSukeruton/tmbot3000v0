@@ -1,0 +1,16 @@
+show_id,time,activity,notes
+#605002,12:00,Load In,Trucks arrive at loading dock - crew call time
+#605002,12:30,Stage Setup,Backline and risers positioned
+#605002,13:00,Sound System Setup,FOH and monitor rigs - Chris Anderson and Jordan Lee
+#605002,14:00,Lighting Rig Focus,Taylor Swift - lighting tech focus and programming
+#605002,15:00,Line Check,All instruments and mics tested
+#605002,16:00,Soundcheck,Full band soundcheck - 60 minutes
+#605002,17:00,Support Band Soundcheck,The Echoes - 30 minutes
+#605002,17:30,Dinner Break,Catering served backstage
+#605002,19:00,Doors Open,Public entry begins
+#605002,20:00,Support Band On Stage,The Echoes perform
+#605002,20:30,Changeover,Stage reset for headliner
+#605002,21:00,Show Time,Main act performance begins
+#605002,22:30,Show Ends,Performance concludes
+#605002,23:00,Curfew,Hard curfew - noise restrictions
+#605002,23:30,Load Out Complete,All equipment packed and loaded

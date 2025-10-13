@@ -1,0 +1,6 @@
+city,airport_name,airport_code,address,terminal_info
+Brisbane,Brisbane Airport,BNE,"Airport Drive, Brisbane Airport QLD 4008","Domestic and International Terminals"
+Adelaide,Adelaide Airport,ADL,"1 James Schofield Drive, Adelaide Airport SA 5950","Single Terminal (T1)"
+Sydney,Sydney Airport,SYD,"Sydney Airport, Mascot NSW 2020","T1 International, T2/T3 Domestic"
+Melbourne,Melbourne Airport,MEL,"Melbourne Airport, Tullamarine VIC 3045","T1-T4 Terminals"
+Perth,Perth Airport,PER,"Perth Airport WA 6105","T1/T2 Domestic, T1 International"

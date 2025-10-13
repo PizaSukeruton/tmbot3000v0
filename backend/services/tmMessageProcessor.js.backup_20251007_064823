@@ -1,0 +1,171 @@
+const aiEngine = require("./tmAiEngine");
+// backend/services/tmMessageProcessor.js
+// Orchestrates message handling: match intent, generate AI response, persist to DB.
+
+const pool = require('../db/pool');
+const tmIntentMatcher = require('./tmIntentMatcher');
+const TmAiEngine = require('./tmAiEngine');
+
+class TmMessageProcessor {
+  constructor() {
+    this.pool = pool;
+    this.intentMatcher = tmIntentMatcher;
+    this.aiEngine = aiEngine;
+  }
+
+  /**
+   * Main entry: process one inbound message.
+   * @param {string} content
+   * @param {object} convoContext
+   * @param {object} member
+   */
+  async processMessage(content, convoContext, member) {
+    let intent, aiResponse;
+
+    // ---- Intent stage ----
+    try {
+      intent = await this.intentMatcher.matchIntent(
+        content,
+        { last_entities: this.pickLastEntities(convoContext) },
+        member
+      );
+    } catch (e) {
+      intent = {
+        intent_type: null,
+        confidence: 0,
+        entities: {},
+        original_query: content,
+        error: String(e?.message || e),
+      };
+    }
+
+    // ---- AI Engine stage ----
+    try {
+      aiResponse = await this.aiEngine.generateResponse({
+        message: content,
+        intent,
+        context: convoContext,
+        member,
+      });
+    } catch (e) {
+      aiResponse = {
+        text: 'Sorry, I had an error generating a response.',
+        error: String(e?.message || e),
+      };
+    }
+
+    // ---- Persist message ----
+    try {
+      await this.saveMessage(member.member_id, content, intent, aiResponse);
+    } catch (e) {
+      console.error('[MessageProcessor] Failed to save message:', e);
+    }
+
+    return { intent, aiResponse };
+  }
+
+  /**
+   * Save chat message to DB.
+   */
+  async saveMessage(memberId, content, intent, aiResponse) {
+  const client = await this.pool.connect();
+  try {
+    await client.query('BEGIN');
+    const session = await this.ensureSession(client, memberId);
+
+    // insert USER message
+    const userMsgId = await this.generateHexId();
+    await client.query(
+      `INSERT INTO tm_chat_messages (message_id, session_id, sender_type, content, intent, entities)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        userMsgId,
+        session.session_id,
+        'user',
+        content,
+        intent?.intent_type || null,
+        JSON.stringify(intent?.entities || {})
+      ]
+    );
+
+    // insert BOT message
+    const botMsgId = await this.generateHexId();
+    await client.query(
+      `INSERT INTO tm_chat_messages (message_id, session_id, sender_type, content, intent, entities)
+       VALUES ($1, $2, $3, $4, $5, $6)`,
+      [
+        botMsgId,
+        session.session_id,
+        'bot',
+        (aiResponse && aiResponse.text) ? aiResponse.text : '',
+        intent?.intent_type || null,
+        JSON.stringify(intent?.entities || {})
+      ]
+    );
+
+    // bump session last_activity
+    await client.query(
+      `UPDATE tm_chat_sessions SET last_activity = CURRENT_TIMESTAMP WHERE session_id = $1`,
+      [session.session_id]
+    );
+    await client.query('COMMIT');
+  } catch (e) {
+    await client.query('ROLLBACK');
+    throw e;
+  } finally {
+    client.release();
+  }
+
+  /**
+   * Ensure a session row exists, otherwise create one.
+   */
+  }
+  async ensureSession(client, memberId) {
+    try {
+      const existing = await client.query(
+        `SELECT session_id FROM tm_chat_sessions WHERE member_id = $1 AND is_active = true ORDER BY started_at DESC LIMIT 1`,
+        [memberId]
+      );
+
+      if (existing.rows[0]) {
+        return existing.rows[0];
+      }
+
+      const sessionId = await this.generateHexId();
+      const q = `
+        INSERT INTO tm_chat_sessions (session_id, member_id, started_at, last_activity, is_active, session_metadata)
+        VALUES ($1, $2, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, true, '{}'::jsonb)
+        RETURNING session_id
+      `;
+      const { rows } = await client.query(q, [sessionId, memberId]);
+      return { session_id: rows[0].session_id };
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  /**
+   * Fetch session row (or null).
+   */
+  async getSession(sessionId) {
+    const q = `SELECT session_id FROM tm_chat_sessions WHERE session_id = $1 AND is_active = true`;
+    const { rows } = await this.pool.query(q, [sessionId]);
+    return rows[0] || null;
+  }
+
+  pickLastEntities(convoContext) {
+    return convoContext?.entities || {};
+  }
+
+  async generateHexId() {
+    const hex = Math.floor(Math.random() * 0xffffff)
+      .toString(16)
+      .padStart(6, "0")
+      .toUpperCase();
+    return "#"+hex;
+  
+  }
+}
+
+module.exports = new TmMessageProcessor();
+

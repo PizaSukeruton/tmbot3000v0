@@ -1,0 +1,38 @@
+[
+  {
+    "input": "promoter rep",
+    "normalized": "promoter rep",
+    "expect_term_id": "#604054",
+    "got": null
+  },
+  {
+    "input": "PROMOTER REP",
+    "normalized": "promoter rep",
+    "expect_term_id": "#604054",
+    "got": null
+  },
+  {
+    "input": "promoter-rep",
+    "normalized": "promoter rep",
+    "expect_term_id": "#604054",
+    "got": null
+  },
+  {
+    "input": "promoter rep!",
+    "normalized": "promoter rep",
+    "expect_term_id": "#604054",
+    "got": null
+  },
+  {
+    "input": "promoter rep.",
+    "normalized": "promoter rep",
+    "expect_term_id": "#604054",
+    "got": null
+  },
+  {
+    "input": "promoter  rep",
+    "normalized": "promoter rep",
+    "expect_term_id": "#604054",
+    "got": null
+  }
+]
