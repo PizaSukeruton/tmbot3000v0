@@ -9,21 +9,23 @@ class TmIntentMatcher {
 
     let intent = { intent_type: null, confidence: 0, entities: {} };
 
-    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
-    const venueQueryMatch = q.match(/(?:who(?: is|'s)?|what(?: is|'s)?)?\s*(?:the\s*)?venue\s*(contact|manager|phone|email)\s*(?:for|in|at)?\s*(\w+)?/i) ||
-                           q.match(/(?:who(?: is|'s)?|what(?: is|'s)?)?\s*(contact|manager|phone|email).*venue\s*(?:for|in|at)?\s*(\w+)?/i);
+
+    // --- PRIORITIZED VENUE QUERY BLOCK ---
+    const venueQueryMatch = q.match(/(?:who(?:'s| is)?|what(?:'s| is)?|\bwhich)\s*(?:is|the)?\s*venue\s*(contact|manager|phone|email)\s*(?:for|in|at)?\s*(\w+)?/i) ||
+                           q.match(/(?:who(?:'s| is)?|what(?:'s| is)?|\bwhich)\s*(contact|manager|phone|email).*venue\s*(?:for|in|at)?\s*(\w+)?/i) ||
+                           q.match(/venue\s*(contact|manager|phone|email)\s*(?:for|in|at)?\s*(\w+)?/i);
     
     if (venueQueryMatch) {
-      console.log('[IntentMatcher] Matched venue_query:', venueQueryMatch);
       return {
         intent_type: "venue_query",
-        confidence: 0.95,
-        entities: { 
-          query_type: venueQueryMatch[1].toLowerCase(),
+        confidence: 0.99,
+        entities: {
+          query_type: venueQueryMatch[1] ? venueQueryMatch[1].toLowerCase() : null,
           location: venueQueryMatch[2] || null
         }
       };
     }
+    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
 
     // Check for "who is" queries
     const whoIsMatch = q.match(/who\s+is\s+(?:the\s+)?(.+?)\??$/i);
@@ -192,7 +194,7 @@ class TmIntentMatcher {
     }
 
     const locationSpecificMatch = q.match(/(?:the\s+)?(\w+)\s+show(?:\s+on\s+(.+))?/i);
-    if (locationSpecificMatch && locationSpecificMatch[1].toLowerCase() !== "the") {
+    if (locationSpecificMatch && locationSpecificMatch[1].toLowerCase() !== "the" && locationSpecificMatch[1].toLowerCase() !== "all" && locationSpecificMatch[1].toLowerCase() !== "list") {
       return {
         intent_type: "location_specific_query",
         confidence: 0.9,
@@ -246,7 +248,7 @@ class TmIntentMatcher {
     }
 
     try {
-      if (/schedule|showtime|what time.*show|(^|\s)show(s)?(\s|$)/.test(q)) {
+      if (/list.*shows?|all shows?|show list|schedule|showtime|what time.*show|(^|\s)show(s)?(\s|$)/.test(q)) {
         intent = { intent_type: 'show_schedule', confidence: 0.95, entities: {} };
       } else if (/load in|load-out|sound.?check|curfew|setlist/.test(q)) {
         intent = { intent_type: 'production', confidence: 0.9, entities: {} };

@@ -48,8 +48,8 @@ class TmIntentMatcher {
     }
 
     // Check for individual member notification commands
-    if (/(?:notify|alert|don't notify|enable|disable).*notifications?.*fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
-      const match = q.match(/fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
+    if (/(?:notify|alert|don't notify|enable|disable).*notifications?.*for\s+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
+      const match = q.match(/for\s+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
       const memberName = match ? match[1] : null;
       
       if (memberName) {
@@ -133,8 +133,8 @@ class TmIntentMatcher {
     }
 
     // Check for individual member status query
-    if (/(?:show|what are|check).*notifications?.*(?:settings?|status)?.*fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
-      const match = q.match(/fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
+    if (/(?:show|what are|check).*notifications?.*(?:settings?|status)?.*for\s+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
+      const match = q.match(/for\s+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
       const memberName = match ? match[1] : null;
       
       if (memberName) {
@@ -175,7 +175,7 @@ class TmIntentMatcher {
           destination = "venue";
         }
         if (destination && destination.includes("airport")) {
-          const airportMatch = destination.match(/airports+ins+(w+)/i);
+          const airportMatch = destination.match(/airports+in\s+(w+)/i);
           if (airportMatch) {
             location = airportMatch[1];
           }

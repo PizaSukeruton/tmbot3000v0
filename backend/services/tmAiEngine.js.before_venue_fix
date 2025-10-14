@@ -472,7 +472,6 @@ class TmAiEngine {
         return { type: "fallback", text: "I'm not sure how to handle that yet." };
       }
 
-      console.log("[DEBUG] About to enter switch, intent_type =", intent.intent_type);
       console.log("[DEBUG] Intent received:", JSON.stringify(intent));      console.log("[DEBUG] Intent received:", JSON.stringify(intent));      switch (intent.intent_type) {
         case "help":
 
@@ -550,66 +549,62 @@ class TmAiEngine {
           // Multiple matches but no context - this should trigger Next Step Logic
           return { type: "personnel", text: `I found ${allMatches.length} different ${personName}s across the tour. Which show are you asking about?` };
         }
-        break;
-        
-        case "venue_query": {
-          console.log("[DEBUG] >>> VENUE_QUERY CASE ENTERED <<<");
-          const queryType = intent.entities?.query_type || "contact";
-          const queryLocation = intent.entities?.location;
-          let context = null;
-          
-          if (queryLocation) {
-            const allShows = await dataSource.getShows();
-            const locationLower = queryLocation.toLowerCase();
-            const matchingShow = allShows.shows.find(show => 
-              show.city.toLowerCase().includes(locationLower)
-            );
-            
-            if (matchingShow) {
-              context = {
-                show_id: matchingShow.show_id,
-                venue_id: matchingShow.venue_id,
-                venue_name: matchingShow.venue_name,
-                city: matchingShow.city,
-                date: matchingShow.date
-              };
-            }
-          } else {
-            context = intent.context || intent.assumedContext;
-          }
-          
-          if (!context || !context.venue_id) {
-            return { type: "fallback", text: "Please specify which venue you're asking about." };
-          }
-          
-          const venue = await dataSource.getVenue(context.venue_id);
-          
-          if (!venue) {
-            return { type: "fallback", text: "I couldn't find information for that venue." };
-          }
-          
-          let response = "";
-          switch (queryType) {
-            case "contact":
-            case "manager":
-              response = `The venue contact for ${venue.name} in ${context.city} is ${venue.contact.name} - ${venue.contact.phone} (${venue.contact.email}).`;
-              break;
-            case "phone":
-              response = `The venue phone for ${venue.name} is ${venue.contact.phone}.`;
-              break;
-            case "email":
-              response = `The venue email for ${venue.name} is ${venue.contact.email}.`;
-              break;
-            default:
-              response = `The venue contact for ${venue.name} is ${venue.contact.name} - ${venue.contact.phone}.`;
-          }
-          
-          return { type: "venue_info", text: response };
-        }
-        
-          break;
+
+case "venue_query": {
+  const queryType = intent.entities?.query_type || "contact";
+  const queryLocation = intent.entities?.location;
+  let context = null;
+  
+  if (queryLocation) {
+    const allShows = await dataSource.getShows();
+    const locationLower = queryLocation.toLowerCase();
+    const matchingShow = allShows.shows.find(show => 
+      show.city.toLowerCase().includes(locationLower)
+    );
+    
+    if (matchingShow) {
+      context = {
+        show_id: matchingShow.show_id,
+        venue_id: matchingShow.venue_id,
+        venue_name: matchingShow.venue_name,
+        city: matchingShow.city,
+        date: matchingShow.date
+      };
+    }
+  } else {
+    context = intent.context || intent.assumedContext;
+  }
+  
+  if (!context || !context.venue_id) {
+    return { type: "fallback", text: "Please specify which venue you're asking about." };
+  }
+  
+  const venue = await dataSource.getVenue(context.venue_id);
+  
+  if (!venue) {
+    return { type: "fallback", text: "I couldn't find information for that venue." };
+  }
+  
+  let response = "";
+  switch (queryType) {
+    case "contact":
+    case "manager":
+      response = `The venue contact for ${venue.name} in ${context.city} is ${venue.contact.name} - ${venue.contact.phone} (${venue.contact.email}).`;
+      break;
+    case "phone":
+      response = `The venue phone for ${venue.name} is ${venue.contact.phone}.`;
+      break;
+    case "email":
+      response = `The venue email for ${venue.name} is ${venue.contact.email}.`;
+      break;
+    default:
+      response = `The venue contact for ${venue.name} is ${venue.contact.name} - ${venue.contact.phone}.`;
+  }
+  
+  return { type: "venue_info", text: response };
+}
+
         case "travel_time_query": {
-          console.log("[DEBUG] Entering travel_time_query case");
           // Prioritize session context over assumed context
           let context = null;
           // Check if a location was specified in the query
