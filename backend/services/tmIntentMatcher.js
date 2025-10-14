@@ -9,20 +9,18 @@ class TmIntentMatcher {
 
     let intent = { intent_type: null, confidence: 0, entities: {} };
 
-    // Check for venue-related queries
-    // Check for venue queries with optional location
-    const venueQueryMatch = q.match(/(?:who is the |who's the |what is the |what's the )?venue (contact|manager|phone|email)(?:\s+(?:for|in|at)\s+(\w+))?/i) ||
-                           q.match(/(?:who is the |who's the |what is the |what's the )?(contact|manager|phone|email).*(?:for|in|at)\s+(\w+)\s+venue/i);
+    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
+    const venueQueryMatch = q.match(/(?:who(?: is|'s)?|what(?: is|'s)?)?\s*(?:the\s*)?venue\s*(contact|manager|phone|email)\s*(?:for|in|at)?\s*(\w+)?/i) ||
+                           q.match(/(?:who(?: is|'s)?|what(?: is|'s)?)?\s*(contact|manager|phone|email).*venue\s*(?:for|in|at)?\s*(\w+)?/i);
+    
     if (venueQueryMatch) {
-      const queryType = venueQueryMatch[1].toLowerCase();
-      const location = venueQueryMatch[2] || null;
-      
+      console.log('[IntentMatcher] Matched venue_query:', venueQueryMatch);
       return {
         intent_type: "venue_query",
         confidence: 0.95,
         entities: { 
-          query_type: queryType,
-          location: location
+          query_type: venueQueryMatch[1].toLowerCase(),
+          location: venueQueryMatch[2] || null
         }
       };
     }
@@ -48,15 +46,14 @@ class TmIntentMatcher {
     }
 
     // Check for individual member notification commands
-    if (/(?:notify|alert|don't notify|enable|disable).*notifications?.*fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
-      const match = q.match(/fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
+    if (/(?:notify|alert|don't notify|enable|disable).*notifications?.*for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i.test(q)) {
+      const match = q.match(/for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i);
       const memberName = match ? match[1] : null;
       
       if (memberName) {
         const enableMatch = /turn on|enable|notify|alert/.test(q);
         const disableMatch = /turn off|disable|don't notify/.test(q);
         
-        // Determine event type
         let eventType = "schedule_change";
         if (/traffic|delay/i.test(q)) eventType = "traffic_delay";
         else if (/lobby/i.test(q)) eventType = "lobby_change";
@@ -80,13 +77,11 @@ class TmIntentMatcher {
       const enableMatch = /turn on|enable|notify|alert/.test(q);
       const disableMatch = /turn off|disable|don't notify/.test(q);
       
-      // Determine member type
       let memberType = "all";
       if (/band/i.test(q)) memberType = "band";
       else if (/crew/i.test(q)) memberType = "crew";
       
-      // Determine event type
-      let eventType = "schedule_change"; // default
+      let eventType = "schedule_change";
       if (/traffic|delay/i.test(q)) eventType = "traffic_delay";
       else if (/lobby/i.test(q)) eventType = "lobby_change";
       else if (/soundcheck/i.test(q)) eventType = "soundcheck_change";
@@ -105,7 +100,7 @@ class TmIntentMatcher {
         }
       };
     }
-    // Check for settings management queries
+
     if (/(?:turn on|turn off|enable|disable|toggle).*(?:traffic|monitoring|auto.?adjust|notification)/i.test(q)) {
       const enableMatch = /turn on|enable/.test(q);
       const disableMatch = /turn off|disable/.test(q);
@@ -119,7 +114,6 @@ class TmIntentMatcher {
       };
     }
 
-    // Check for response mode toggle
     if (/(?:set|switch|toggle|change|use).*(?:response|answer|mode).*(?:basic|expanded|detailed|brief)/i.test(q) ||
         /(?:basic|expanded|detailed|brief).*(?:mode|answers?|responses?)/i.test(q)) {
       const mode = q.match(/(?:basic|brief)/i) ? 'basic' : 'expanded';
@@ -132,9 +126,8 @@ class TmIntentMatcher {
       };
     }
 
-    // Check for individual member status query
-    if (/(?:show|what are|check).*notifications?.*(?:settings?|status)?.*fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
-      const match = q.match(/fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
+    if (/(?:show|what are|check).*notifications?.*(?:settings?|status)?.*for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i.test(q)) {
+      const match = q.match(/for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i);
       const memberName = match ? match[1] : null;
       
       if (memberName) {
@@ -148,7 +141,6 @@ class TmIntentMatcher {
       }
     }
 
-    // Check for settings status queries
     if (/(?:show|what are|check).*(?:settings|preferences|configuration)/i.test(q)) {
       return {
         intent_type: "settings_query",
@@ -157,15 +149,11 @@ class TmIntentMatcher {
       };
     }
 
-    // Check for travel time queries
     if (/(?:how long|travel time|drive time|time to get|get to).*(?:venue|airport|hotel|city|downtown)/i.test(q)) {
-      // Extract location if mentioned
-      // Extract origin and destination
       let origin = null;
       let destination = null;
       let location = null;
       
-      // Pattern to extract from-to locations
       const fromToMatch = q.match(/(?:from|at)\s+(\w+)\s+to\s+(.+)$/i);
       if (fromToMatch) {
         origin = fromToMatch[1];
@@ -175,7 +163,7 @@ class TmIntentMatcher {
           destination = "venue";
         }
         if (destination && destination.includes("airport")) {
-          const airportMatch = destination.match(/airports+ins+(w+)/i);
+          const airportMatch = destination.match(/airport\s+in\s+(\w+)/i);
           if (airportMatch) {
             location = airportMatch[1];
           }
@@ -183,10 +171,9 @@ class TmIntentMatcher {
         }
       } else if (q.includes("airport")) {
         destination = "airport";
-        origin = "hotel"; // assume from hotel if not specified
+        origin = "hotel";
       }
       
-      // Simple pattern to extract city after common prepositions
       const locationMatch = q.match(/(?:for|in|at|to)\s+(?:the\s+)?(?:venue\s+)?(?:for|in|at)?\s*(\w+)$/i);
       if (locationMatch) {
         location = locationMatch[1];
@@ -203,7 +190,7 @@ class TmIntentMatcher {
         }
       };
     }
-    // Check for location-specific queries
+
     const locationSpecificMatch = q.match(/(?:the\s+)?(\w+)\s+show(?:\s+on\s+(.+))?/i);
     if (locationSpecificMatch && locationSpecificMatch[1].toLowerCase() !== "the") {
       return {
@@ -216,7 +203,6 @@ class TmIntentMatcher {
       };
     }
 
-    // Check for term lookups
     const normQ = normalize(q);
     let hit = lookupExact(normQ) || lookupInSentence(normQ);
 
@@ -236,8 +222,6 @@ class TmIntentMatcher {
       };
     }
 
-
-    // Check for flight queries
     if (/(?:what|when|which).*flight/i.test(q) ||
         /flight.*(?:info|information|details|status)/i.test(q) ||
         /(?:when|what time).*(?:fly|flying|departure)/i.test(q) ||
@@ -245,7 +229,6 @@ class TmIntentMatcher {
         /(?:my|our|next).*flight/i.test(q) ||
         /confirmation.*(?:code|number)/i.test(q)) {
       
-      // Extract flight number if mentioned
       const flightNumberMatch = q.match(/(?:flight|\b)([A-Z]{2}\d{1,4})\b/i);
       const dateMatch = q.match(/(?:on|for)\s+(.+?)(?:\s|$)/i);
       const confirmationMatch = q.match(/confirmation.*(?:code|number|\b)([A-Z0-9]{6})\b/i);
@@ -261,7 +244,7 @@ class TmIntentMatcher {
         }
       };
     }
-    // General pattern matching
+
     try {
       if (/schedule|showtime|what time.*show|(^|\s)show(s)?(\s|$)/.test(q)) {
         intent = { intent_type: 'show_schedule', confidence: 0.95, entities: {} };
