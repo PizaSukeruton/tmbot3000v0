@@ -1,50 +1,76 @@
 show_id,category,note,priority,created_by
-#605002,crew,Drum Tech: Marcus Chen - contact 0412-555-0101,high,Tour Manager
-#605002,crew,Guitar Tech: Jamie Rivera - contact 0412-555-0102,high,Tour Manager
-#605002,crew,Keyboard Tech: Alex Thompson - contact 0412-555-0103,high,Tour Manager
-#605002,crew,Percussion Tech: Sam Martinez - contact 0412-555-0104,high,Tour Manager
-#605002,crew,FOH Tech: Chris Anderson - contact 0412-555-0105,high,Tour Manager
-#605002,crew,Monitor Tech: Jordan Lee - contact 0412-555-0106,high,Tour Manager
-#605002,crew,Lighting Tech: Taylor Swift - contact 0412-555-0107,high,Tour Manager
-#605002,crew,Stage Tech: Morgan Blake - contact 0412-555-0108,high,Tour Manager
-#605002,crew,Production Manager: Riley Cooper - contact 0412-555-0109,critical,Tour Manager
-#605002,crew,Driver: Casey Brooks - contact 0412-555-0110,critical,Tour Manager
-#605002,crew,Runner: Avery Stone - contact 0412-555-0111,medium,Tour Manager
-#605002,hospitality,Per Diem: $85 AUD per person per day,high,Accountant
-#605002,hospitality,Catering: Hot meals at 12pm and 6pm - vegetarian options available,high,Tour Manager
-#605002,hospitality,Buyout: $45 per person if catering not provided,medium,Accountant
-#605002,hospitality,Rider: Full rider details in tour book section 3.2,critical,Tour Manager
-#605002,hospitality,Guest List: 25 comp tickets allocated - submit names by 5pm show day,high,Tour Manager
-#605002,hospitality,Laundry: Service available at hotel - items collected daily at 9am,low,Tour Manager
-#605002,hospitality,Meet and Greet: 4:30pm in Green Room A - 15 guests maximum,medium,Artist Relations
-#605002,logistics,Laminate: All crew must wear AA laminates - collect from production office,critical,Production Manager
-#605002,logistics,Day Sheet: Distributed via email at 7am - check production office for copies,high,Tour Manager
-#605002,production,DB Limit: 102dB at FOH position - strictly enforced by venue,critical,Venue Manager
-#605002,production,Support Bands: The Echoes (7:30-8:00pm) - contact: echoes@bandmail.com,high,Promoter
-#605002,production,Support Band Set Times: 7:30pm doors, 8:00pm support, 9:00pm changeover, 9:15pm headliner,high,Production Manager
-#605002,production,Set List: Final set list approved - 18 songs, 90min set length,high,Artist
-#605002,production,Curfew: Hard curfew 11pm - council noise restrictions,critical,Venue Manager
-#605002,media,Press Schedule: Radio interview 2pm, TV interview 3pm,high,Publicist
-#605002,media,Press Commitments: 3 media slots confirmed - see day sheet for details,medium,Publicist
-#605002,logistics,Promoter: Live Nation Brisbane - David Kim 0412-555-0115,critical,Booking Agent
-#605002,logistics,Support Band Contact: The Echoes manager - Emma Walsh 0412-555-0116,medium,Promoter
-#605002,production,Production Meeting: 1pm in production office - all dept heads required,high,Production Manager
-#605002,production,FOH: Front of House position - mix engineer Chris Anderson,high,Production Manager
-#605002,production,BOH: Back of House areas include green rooms and production office,medium,Venue Manager
-#605001,logistics,Travel Day: Sydney to Brisbane - Distance: 982km - Flight Time: 1h30m,high,Tour Manager
-#605001,logistics,Group Check In: 11:45am Sydney Airport T1 - 12 passengers checking in together for QF544,high,Tour Manager
-#605001,logistics,Self Check In: Qantas app available - use booking ref ABC123,medium,Tour Manager
-#605001,logistics,Luggage Allowance: 23kg checked bag + 7kg carry-on per person,medium,Tour Manager
-#605001,logistics,Oversized Item: 3x guitar flight cases pre-approved - collect at oversized luggage,medium,Tour Manager
-#605002,logistics,Show Day: Brisbane Entertainment Centre - full performance day,critical,Tour Manager
-#605003,logistics,Travel Day: Brisbane to Adelaide - Distance: 1618km - Flight Time: 2h30m,high,Tour Manager
-#605003,logistics,Day Off: October 27th - no scheduled activities in Adelaide,low,Tour Manager
-#605004,crew,Drum Tech: Sophie Wilson - contact 0413-666-0201,high,Tour Manager
-#605004,crew,Guitar Tech: Daniel Park - contact 0413-666-0202,high,Tour Manager
-#605004,crew,Keyboard Tech: Emma Johnson - contact 0413-666-0203,high,Tour Manager
-#605004,crew,Percussion Tech: Oliver Brown - contact 0413-666-0204,high,Tour Manager
-#605004,crew,FOH Tech: Isabella Davis - contact 0413-666-0205,high,Tour Manager
-#605004,crew,Monitor Tech: Noah Miller - contact 0413-666-0206,high,Tour Manager
-#605004,crew,Lighting Tech: Mia Garcia - contact 0413-666-0207,high,Tour Manager
-#605004,crew,Stage Tech: Liam Rodriguez - contact 0413-666-0208,high,Tour Manager
-#605004,crew,Production Manager: Ava Martinez - contact 0413-666-0209,critical,Tour Manager
+#605001,crew,Production Manager: Sarah Mitchell - contact +61 412 555 0101,high,Tour Manager
+#605001,crew,FOH Tech: David Chen - contact +61 412 555 0102,high,Production Manager
+#605001,crew,Lighting Tech: Lisa Wong - contact +61 412 555 0103,high,Production Manager
+#605001,crew,Monitor Tech: Mike Johnson - contact +61 412 555 0104,medium,Production Manager
+#605001,crew,Stage Tech: Emma Davis - contact +61 412 555 0105,medium,Production Manager
+#605001,crew,Guitar Tech: Ryan Smith - contact +61 412 555 0106,medium,Production Manager
+#605001,crew,Drum Tech: Kate Wilson - contact +61 412 555 0107,medium,Production Manager
+#605001,crew,Keyboard Tech: Alex Turner - contact +61 412 555 0108,medium,Production Manager
+#605001,crew,Percussion Tech: Sophie Brown - contact +61 412 555 0109,medium,Production Manager
+#605001,crew,Runner: James Miller - contact +61 412 555 0110,low,Production Manager
+#605001,crew,Driver: Rachel Green - contact +61 412 555 0111,medium,Production Manager
+#605001,crew,Merch Seller: Chris Taylor - contact +61 412 555 0112,low,Production Manager
+#605001,crew,Promoter: Nicole White - contact +61 412 555 0113,high,Venue
+#605001,venue,Venue Contact: Ben Anderson - contact +61 412 555 0114,high,Venue
+#605001,venue,Medical Staff: Amy Roberts - contact +61 412 555 0115,high,Venue
+#605002,crew,Production Manager: Tom Bradley - contact +61 412 555 0201,high,Tour Manager
+#605002,crew,FOH Tech: Emma Davis - contact +61 412 555 0202,high,Production Manager
+#605002,crew,Lighting Tech: Ryan Smith - contact +61 412 555 0203,high,Production Manager
+#605002,crew,Monitor Tech: Kate Wilson - contact +61 412 555 0204,medium,Production Manager
+#605002,crew,Stage Tech: Alex Turner - contact +61 412 555 0205,medium,Production Manager
+#605002,crew,Guitar Tech: Sophie Brown - contact +61 412 555 0206,medium,Production Manager
+#605002,crew,Drum Tech: James Miller - contact +61 412 555 0207,medium,Production Manager
+#605002,crew,Keyboard Tech: Rachel Green - contact +61 412 555 0208,medium,Production Manager
+#605002,crew,Percussion Tech: Chris Taylor - contact +61 412 555 0209,medium,Production Manager
+#605002,crew,Runner: Nicole White - contact +61 412 555 0210,low,Production Manager
+#605002,crew,Driver: Ben Anderson - contact +61 412 555 0211,medium,Production Manager
+#605002,crew,Merch Seller: Amy Roberts - contact +61 412 555 0212,low,Production Manager
+#605002,crew,Promoter: Mark Thompson - contact +61 412 555 0213,high,Venue
+#605002,venue,Venue Contact: Lisa Chen - contact +61 412 555 0214,high,Venue
+#605002,venue,Medical Staff: David Wong - contact +61 412 555 0215,high,Venue
+#605003,crew,Production Manager: Marcus Chen - contact +61 412 555 0301,high,Tour Manager
+#605003,crew,FOH Tech: Jamie Rivera - contact +61 412 555 0302,high,Production Manager
+#605003,crew,Lighting Tech: Alex Thompson - contact +61 412 555 0303,high,Production Manager
+#605003,crew,Monitor Tech: Sam Martinez - contact +61 412 555 0304,medium,Production Manager
+#605003,crew,Stage Tech: Jordan Lee - contact +61 412 555 0305,medium,Production Manager
+#605003,crew,Guitar Tech: Taylor Kim - contact +61 412 555 0306,medium,Production Manager
+#605003,crew,Drum Tech: Casey Park - contact +61 412 555 0307,medium,Production Manager
+#605003,crew,Keyboard Tech: Riley Singh - contact +61 412 555 0308,medium,Production Manager
+#605003,crew,Percussion Tech: Morgan Davis - contact +61 412 555 0309,medium,Production Manager
+#605003,crew,Runner: Avery Wilson - contact +61 412 555 0310,low,Production Manager
+#605003,crew,Driver: Quinn Taylor - contact +61 412 555 0311,medium,Production Manager
+#605003,crew,Merch Seller: Blake Johnson - contact +61 412 555 0312,low,Production Manager
+#605003,crew,Promoter: Drew Mitchell - contact +61 412 555 0313,high,Venue
+#605003,venue,Venue Contact: Sage Brown - contact +61 412 555 0314,high,Venue
+#605003,venue,Medical Staff: Phoenix Roberts - contact +61 412 555 0315,high,Venue
+#605004,crew,Production Manager: River Chen - contact +61 412 555 0401,high,Tour Manager
+#605004,crew,FOH Tech: Skyler Rivera - contact +61 412 555 0402,high,Production Manager
+#605004,crew,Lighting Tech: Rowan Thompson - contact +61 412 555 0403,high,Production Manager
+#605004,crew,Monitor Tech: Sage Martinez - contact +61 412 555 0404,medium,Production Manager
+#605004,crew,Stage Tech: Blair Lee - contact +61 412 555 0405,medium,Production Manager
+#605004,crew,Guitar Tech: Finley Kim - contact +61 412 555 0406,medium,Production Manager
+#605004,crew,Drum Tech: Harper Park - contact +61 412 555 0407,medium,Production Manager
+#605004,crew,Keyboard Tech: Peyton Singh - contact +61 412 555 0408,medium,Production Manager
+#605004,crew,Percussion Tech: Cameron Davis - contact +61 412 555 0409,medium,Production Manager
+#605004,crew,Runner: Emery Wilson - contact +61 412 555 0410,low,Production Manager
+#605004,crew,Driver: Reese Taylor - contact +61 412 555 0411,medium,Production Manager
+#605004,crew,Merch Seller: Kendall Johnson - contact +61 412 555 0412,low,Production Manager
+#605004,crew,Promoter: Marlowe Mitchell - contact +61 412 555 0413,high,Venue
+#605004,venue,Venue Contact: Indigo Brown - contact +61 412 555 0414,high,Venue
+#605004,venue,Medical Staff: Wren Roberts - contact +61 412 555 0415,high,Venue
+#605005,crew,Production Manager: Aspen Chen - contact +61 412 555 0501,high,Tour Manager
+#605005,crew,FOH Tech: Briar Rivera - contact +61 412 555 0502,high,Production Manager
+#605005,crew,Lighting Tech: Cedar Thompson - contact +61 412 555 0503,high,Production Manager
+#605005,crew,Monitor Tech: Sage Martinez - contact +61 412 555 0504,medium,Production Manager
+#605005,crew,Stage Tech: Juniper Lee - contact +61 412 555 0505,medium,Production Manager
+#605005,crew,Guitar Tech: Oakley Kim - contact +61 412 555 0506,medium,Production Manager
+#605005,crew,Drum Tech: Willow Park - contact +61 412 555 0507,medium,Production Manager
+#605005,crew,Keyboard Tech: Aspen Singh - contact +61 412 555 0508,medium,Production Manager
+#605005,crew,Percussion Tech: River Davis - contact +61 412 555 0509,medium,Production Manager
+#605005,crew,Runner: Storm Wilson - contact +61 412 555 0510,low,Production Manager
+#605005,crew,Driver: Vale Taylor - contact +61 412 555 0511,medium,Production Manager
+#605005,crew,Merch Seller: Echo Johnson - contact +61 412 555 0512,low,Production Manager
+#605005,crew,Promoter: Sage Mitchell - contact +61 412 555 0513,high,Venue
+#605005,venue,Venue Contact: Luna Brown - contact +61 412 555 0514,high,Venue
+#605005,venue,Medical Staff: Atlas Roberts - contact +61 412 555 0515,high,Venue
