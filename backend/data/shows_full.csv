@@ -1,6 +1,11 @@
 show_id,date,venue_id,venue_name,city,state,country,doors_time,show_time,soundcheck_time,load_in_time,load_out_time,curfew_time,lobby_call_time,departure_time,airport_call_time,band_call_time,checkout_time,crew_call_time,set_length,set_times,ticket_status,timezone
 #605001,2025-10-24,#606003,Brisbane Entertainment Centre,Brisbane,QLD,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,09:00,07:00,18:30,10:00,11:00,90m,20:00-21:30,On Sale,Australia/Brisbane
+#605002,2025-10-25,#606003,Brisbane Entertainment Centre,Brisbane,QLD,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,,,18:30,,11:00,90m,20:00-21:30,Sold Out,Australia/Brisbane
 #605003,2025-10-26,#606004,Adelaide Entertainment Centre,Adelaide,SA,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,09:00,07:00,18:30,10:00,11:00,90m,20:00-21:30,On Sale,Australia/Adelaide
+#605004,2025-10-27,#606004,Adelaide Entertainment Centre,Adelaide,SA,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,,,18:30,,11:00,90m,20:00-21:30,On Sale,Australia/Adelaide
 #605005,2025-10-29,#606005,Rod Laver Arena,Melbourne,VIC,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,09:00,07:00,18:30,10:00,11:00,90m,20:00-21:30,On Sale,Australia/Melbourne
+#605006,2025-10-30,#606005,Rod Laver Arena,Melbourne,VIC,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,,,18:30,,11:00,90m,20:00-21:30,Sold Out,Australia/Melbourne
 #605007,2025-11-01,#606006,Qudos Bank Arena,Sydney,NSW,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,09:00,07:00,18:30,10:00,11:00,90m,20:00-21:30,On Sale,Australia/Sydney
+#605008,2025-11-02,#606006,Qudos Bank Arena,Sydney,NSW,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,,,18:30,,11:00,90m,20:00-21:30,Sold Out,Australia/Sydney
 #605009,2025-11-04,#606007,RAC Arena,Perth,WA,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,09:00,07:00,18:30,10:00,11:00,90m,20:00-21:30,On Sale,Australia/Perth
+#605010,2025-11-05,#606007,RAC Arena,Perth,WA,Australia,19:00,20:00,16:00,12:00,23:30,23:00,15:30,,,18:30,,11:00,90m,20:00-21:30,On Sale,Australia/Perth

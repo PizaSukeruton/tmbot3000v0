@@ -89,16 +89,8 @@ function fmtDate(d) {
 }
 
 function lineForShow(s, i) {
-  const bits = [];
-  bits.push(`${i}. ${fmtDate(s.date)}`);
-  const locParts = [s.venue_name, s.city, s.state || s.region, s.country].filter(Boolean);
-  if (locParts.length) bits.push(`    📍 ${locParts.join(", ")}`);
-  if (s.doors_time) bits.push(`    🚪 Doors: ${s.doors_time}${s.timezone ? " " + s.timezone : ""}`);
-  if (s.show_time)  bits.push(`    🎫 Show: ${s.show_time}${s.timezone ? " " + s.timezone : ""}`);
-  if (s.ticket_status) bits.push(`    🎟️ ${s.ticket_status}`);
-  return bits.join("\n");
+  return `${fmtDate(s.date)} - ${s.venue_name}, ${s.city}`;
 }
-
 // -------- engine --------
 class TmAiEngine {
   constructor(pool) {
@@ -795,7 +787,7 @@ class TmAiEngine {
 
           const lines = list.map((s, idx) => lineForShow(s, idx + 1));
           const header = `I found ${list.length} ${list.length === 1 ? "show" : "shows"}:\n\n`;
-          return { type: "schedule", text: header + lines.join("\n") };
+          return { type: "schedule", text: header + lines.join("\n\n") };
         }
 
         // Term Lookup now routed through parse -> retrieve -> generate pipeline
@@ -1045,8 +1037,34 @@ class TmAiEngine {
         
 
         case "flight_query": {
-          const { flight_number, date, confirmation, query_type } = intent.entities || {};
-          
+  const { flight_number, date, confirmation, query_type, destination } = intent.entities || {};
+
+  // If the user specified a destination, filter for flights to that city
+  if (destination) {
+    const allFlights = await dataSource.getFlights();
+    const flightsToDest = allFlights.filter(f => 
+      f.arrival_city && f.arrival_city.toLowerCase() === destination.toLowerCase()
+    );
+    
+    const now = new Date();
+    const nextFlightToDest = flightsToDest
+      .filter(f => new Date(f.departure_time) > now)
+      .sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time))[0];
+    
+    if (nextFlightToDest) {
+      const depTime = new Date(nextFlightToDest.departure_time);
+      const arrTime = new Date(nextFlightToDest.arrival_time);
+      
+      let response = `Your next flight to ${destination} is ${nextFlightToDest.airline} ${nextFlightToDest.flight_number} from ${nextFlightToDest.departure_city} to ${nextFlightToDest.arrival_city}.\n`;
+      response += `Departure: ${depTime.toLocaleString()} ${nextFlightToDest.departure_timezone}\n`;
+      response += `Arrival: ${arrTime.toLocaleString()} ${nextFlightToDest.arrival_timezone}\n`;
+      response += `Confirmation: ${nextFlightToDest.confirmation}`;
+      
+      return { type: "flight_info", text: response };
+    } else {
+      return { type: "flight_info", text: `No upcoming flights to ${destination} found.` };
+    }
+  }          
           try {
             // Check if looking for next flight
             if (!flight_number && !confirmation) {

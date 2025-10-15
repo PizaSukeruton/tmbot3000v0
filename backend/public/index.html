@@ -122,9 +122,15 @@
         
         .button-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             gap: 0.5rem;
             padding: 1rem;
+        }
+        
+        .button-grid.single {
+            grid-template-columns: 1fr;
+            max-width: 200px;
+            margin: 0 auto;
         }
         
         .day-button {
@@ -208,6 +214,99 @@
             color: #ef4444;
         }
         
+        .chat-container {
+            padding: 1rem;
+        }
+        
+        .chat-header {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .chat-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0;
+        }
+        
+        .chat-messages {
+            background: #1a1a1a;
+            min-height: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+        }
+        
+        .message {
+            white-space: pre-line;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            max-width: 85%;
+        }
+        
+        .message.user {
+            background: #3b82f6;
+            margin-left: auto;
+            text-align: right;
+        }
+        
+        .message.bot {
+            background: #333;
+            margin-right: auto;
+        }
+        
+        .chat-input-wrapper {
+            display: flex;
+            gap: 0.5rem;
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0 0 0.5rem 0.5rem;
+            border: 1px solid #333;
+            border-top: none;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            background: #000;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            color: #fff;
+            font-size: 1rem;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .send-button:active {
+            background: #2563eb;
+        }
+        
+        .send-button:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
         .hidden {
             display: none;
         }
@@ -238,15 +337,32 @@
                 </div>
             </header>
             
-            <div class="button-grid">
+            <div class="button-grid" id="scheduleButtons">
                 <button id="todayBtn" class="day-button">Today</button>
                 <button id="tomorrowBtn" class="day-button">Tomorrow</button>
+                <button id="chatBtn" class="day-button">Chat</button>
             </div>
             
-            <div class="schedule-container">
+            <div class="button-grid single hidden" id="chatButtons">
+                <button id="backBtn" class="day-button">← Back to Schedule</button>
+            </div>
+            
+            <div class="schedule-container" id="scheduleContainer">
                 <div id="schedule" class="schedule">
                     <h2 id="scheduleTitle">Select a Day</h2>
                     <div class="no-events">Click Today or Tomorrow to view the schedule</div>
+                </div>
+            </div>
+            
+            <!-- Chat Interface -->
+            <div class="chat-container hidden">
+                <div class="chat-header">
+                    <h3>Ask TMBot a Question</h3>
+                </div>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input-wrapper">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Type your question..." />
+                    <button id="sendButton" class="send-button">Send</button>
                 </div>
             </div>
         </div>
@@ -312,6 +428,23 @@
             }
         }
         
+        // Toggle between schedule and chat modes
+        function showChatMode() {
+            console.log('Chat mode activated');
+            document.getElementById("scheduleButtons").classList.add("hidden");
+            document.getElementById("chatButtons").classList.remove("hidden");
+            document.getElementById("scheduleContainer").classList.add("hidden");
+            document.querySelector(".chat-container").classList.remove("hidden");
+        }
+        
+        function showScheduleMode() {
+            console.log('Schedule mode activated');
+            document.getElementById("scheduleButtons").classList.remove("hidden");
+            document.getElementById("chatButtons").classList.add("hidden");
+            document.getElementById("scheduleContainer").classList.remove("hidden");
+            document.querySelector(".chat-container").classList.add("hidden");
+        }
+        
         // Schedule functionality
         async function showSchedule(view) {
             if (currentView === view) return; // Prevent redundant calls
@@ -328,7 +461,9 @@
             if (tomorrowBtn) {
                 tomorrowBtn.classList.remove("active");
                 if (view === "tomorrow") tomorrowBtn.classList.add("active");
-            }            const scheduleDiv = document.getElementById('schedule');
+            }
+            
+            const scheduleDiv = document.getElementById('schedule');
             scheduleDiv.classList.add('visible');
             
             // Update title and show loading
@@ -339,11 +474,15 @@
             } else {
                 console.error("Element with id 'scheduleTitle' not found.");
                 return;
-            }            // Ensure we have a valid container
+            }
+            
+            // Ensure we have a valid container
             if (!scheduleDiv) {
                 console.error("Schedule div not found");
                 return;
-            }            scheduleDiv.innerHTML = `<h2>${title}</h2><div class="loading">Loading schedule...</div>`;
+            }
+            
+            scheduleDiv.innerHTML = `<h2>${title}</h2><div class="loading">Loading schedule...</div>`;
             
             try {
                 const response = await fetch(`/api/schedule/${view}`);
@@ -354,11 +493,12 @@
                 
             } catch (error) {
                 console.error('Error fetching schedule:', error);
-            // Ensure we have a valid container
-            if (!scheduleDiv) {
-                console.error("Schedule div not found");
-                return;
-            }                scheduleDiv.innerHTML = `<h2>${title}</h2><div class="error">Error loading schedule data</div>`;
+                // Ensure we have a valid container
+                if (!scheduleDiv) {
+                    console.error("Schedule div not found");
+                    return;
+                }
+                scheduleDiv.innerHTML = `<h2>${title}</h2><div class="error">Error loading schedule data</div>`;
             }
         }
         
@@ -384,20 +524,87 @@
             if (!scheduleDiv) {
                 console.error("Schedule div not found");
                 return;
-            }            scheduleDiv.innerHTML = html;
+            }
+            scheduleDiv.innerHTML = html;
         }
         
-        // Event listeners
-        document.getElementById('loginBtn').addEventListener('click', login);
-        document.getElementById('usernameInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
+        // Chat functionality
+        function addMessage(text, isUser) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            
+            // Auto-scroll to bottom
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message and clear input
+            addMessage(message, true);
+            input.value = '';
+            
+            // Disable send button during request
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
+            
+            try {
+                const response = await fetch('/api/chat/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        memberId: currentUser,
+                        content: message
+                    })
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                addMessage(data.aiResponse?.text || 'Sorry, I could not understand that.', false);
+                
+            } catch (error) {
+                console.error('Chat error:', error);
+                addMessage('Sorry, I am having trouble connecting. Please try again.', false);
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+                input.focus();
+            }
+        }
+        
+        // Event listeners - Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Login event listeners
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            
+            // Schedule button event listeners
+            document.getElementById('todayBtn').addEventListener('click', () => showSchedule('today'));
+            document.getElementById("tomorrowBtn").addEventListener("click", () => showSchedule("tomorrow"));
+            document.getElementById("chatBtn").addEventListener("click", showChatMode);
+            document.getElementById("backBtn").addEventListener("click", showScheduleMode);
+            
+            // Chat event listeners
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            // Initialize
+            updateDateTime();
         });
-        
-        document.getElementById('todayBtn').addEventListener('click', () => showSchedule('today'));
-        document.getElementById('tomorrowBtn').addEventListener('click', () => showSchedule('tomorrow'));
-        
-        // Initialize
-        updateDateTime();
     </script>
 </body>
 </html>

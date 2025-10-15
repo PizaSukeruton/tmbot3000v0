@@ -234,7 +234,7 @@ class TmIntentMatcher {
       const flightNumberMatch = q.match(/(?:flight|\b)([A-Z]{2}\d{1,4})\b/i);
       const dateMatch = q.match(/(?:on|for)\s+(.+?)(?:\s|$)/i);
       const confirmationMatch = q.match(/confirmation.*(?:code|number|\b)([A-Z0-9]{6})\b/i);
-      
+      const destinationMatch = q.match(/(?:to|into)\s+(\w+)/i);      
       return {
         intent_type: "flight_query",
         confidence: 0.95,
@@ -242,6 +242,7 @@ class TmIntentMatcher {
           flight_number: flightNumberMatch ? flightNumberMatch[1].toUpperCase() : null,
           date: dateMatch ? dateMatch[1] : null,
           confirmation: confirmationMatch ? confirmationMatch[1] : null,
+          destination: destinationMatch ? destinationMatch[1] : null,
           query_type: /status/i.test(q) ? 'status' : 'info'
         }
       };
