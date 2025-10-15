@@ -5,9 +5,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const pool = require('./db/pool');
-const { createCsvDataSource } = require("./services/csvDataSource");
-const DATA_DIR = process.env.TM_DATA_DIR || path.join(__dirname, "data");
-const dataSource = createCsvDataSource({ dataDir: DATA_DIR });
+
 // Core services
 const processor = require('./services/tmMessageProcessor');
 
@@ -58,43 +56,3 @@ app.listen(PORT, () => {
 });
 
 // test hook
-
-// Schedule endpoint - reads ALL fields dynamically from CSV
-app.get('/api/schedule/:day', async (req, res) => {
-  const { day } = req.params;
-  
-  try {
-    const { shows } = await dataSource.getShows({});
-    
-    const now = new Date();
-    const todayStr = new Date().toLocaleDateString("en-CA");
-    const tomorrowStr = new Date(Date.now() + 24*60*60*1000).toLocaleDateString("en-CA");
-    
-    console.log("[DEBUG] Server now:", now);
-    
-    let targetDateStr = (day === 'tomorrow') ? tomorrowStr : todayStr;    // Check both shows and events concurrently
-    const [targetShow, dayEvents] = await Promise.all([
-      Promise.resolve(shows.find(show => {
-        return show.date === targetDateStr;      })),
-      dataSource.getEvents(targetDateStr)
-    ]);
-    
-    const response = {
-      day: day === 'tomorrow' ? 'Tomorrow' : 'Today',
-      hasShow: !!targetShow,
-      show: targetShow || null,
-      events: dayEvents
-    };
-    
-    if (!targetShow && dayEvents.length === 0) {
-      response.message = "No show or events scheduled";
-    } else if (!targetShow) {
-      response.message = "No show scheduled, but events exist";
-    }
-    
-    res.json(response);    
-  } catch (error) {
-    console.error('[API] Schedule error:', error);
-    res.status(500).json({ error: 'Failed to load schedule' });
-  }
-});

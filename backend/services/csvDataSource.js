@@ -98,8 +98,8 @@ function createCsvDataSource({ dataDir }) {
   const setlists = parseCsv(safeRead(path.join(dataDir, 'setlists.csv')));
   const flights = parseCsv(safeRead(path.join(dataDir, 'travel_flights.csv')));
   const airports = parseCsv(safeRead(path.join(dataDir, "airports.csv")));  const hotels = parseCsv(safeRead(path.join(dataDir, 'travel_hotels.csv')));
-  const ground = parseCsv(safeRead(path.join(dataDir, 'ground_transport.csv')));
-  const soundcheck = parseCsv(safeRead(path.join(dataDir, 'soundcheck_schedule.csv')));
+  const events = parseCsv(safeRead(path.join(dataDir, 'events.csv')));
+  const ground = parseCsv(safeRead(path.join(dataDir, 'ground_transport.csv')));  const soundcheck = parseCsv(safeRead(path.join(dataDir, 'soundcheck_schedule.csv')));
   const prodNotes = parseCsv(safeRead(path.join(dataDir, 'production_notes.csv')));
   const merchSales = parseCsv(safeRead(path.join(dataDir, 'merch_sales.csv')));
   const venueById = indexBy(venues, 'venue_id');
@@ -318,8 +318,6 @@ function createCsvDataSource({ dataDir }) {
     },
 
     async getMerchSales(showId) {
-  console.log('[DEBUG][csv] getMerchSales showId=', showId);
-  console.log('[DEBUG][csv] merchSales size=', Array.isArray(merchSales) ? merchSales.length : -1);
       const sales = merchByShow.get(showId) || [];
       const total = sales.reduce((sum, item) => sum + parseFloat(item.gross_sales || 0), 0);
       return {
@@ -543,7 +541,6 @@ function createCsvDataSource({ dataDir }) {
     },
 
     async getAirportByCity(city) {
-      console.log(`[CSV-DATA-SOURCE] Getting airport for city: "${city}"`);
       
       try {
         if (!city) return null;
@@ -591,7 +588,12 @@ function createCsvDataSource({ dataDir }) {
       return flights
         .filter(f => f.departure_time && new Date(f.departure_time) > now)
         .sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time))[0];
-    }
+    },
+
+    getEvents: async function(date) {
+      if (!date) return events;
+      const targetDate = typeof date === 'string' ? date : date.toISOString().split('T')[0];
+      return events.filter(event => event.date === targetDate);    }
   };
 }
 

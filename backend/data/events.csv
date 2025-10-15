@@ -1,0 +1,3 @@
+event_id,date,time,title,description,type,priority,location,contact
+EVT001,2025-10-15,14:00,Phone Interview with Street Press,Promotional interview for tour coverage,interview,medium,Phone,Street Press - 02-9555-0100
+EVT002,2025-10-16,10:00,Tour Production Meeting,Weekly production coordination meeting,meeting,high,Production Office,Production Manager

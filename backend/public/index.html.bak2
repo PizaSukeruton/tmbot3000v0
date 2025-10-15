@@ -224,6 +224,13 @@
             background: #333;
         }
         
+        .demo-button {
+            background: transparent;
+            color: #666;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+        }
+        
         .hidden {
             display: none;
         }
@@ -376,9 +383,14 @@
                 </div>
                 
                 <button class="chat-button" onclick="openChat()">Ask TMBot a Question</button>
+                <button class="demo-button" onclick="toggleStatus()">Toggle Status (Demo)</button>
             </div>
         </div>
         
+        <div id="chatScreen" class="chat-screen hidden">
+            <div class="chat-header">
+                <button class="back-button" onclick="closeChat()">← Back</button>
+                <div class="header-title">Chat with TMBot</div>
             </div>
             
             <div class="chat-messages" id="chatMessages">
