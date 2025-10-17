@@ -1,4 +1,5 @@
 require('dotenv').config();
+console.log("Fuse path check:", require.resolve("fuse.js"));
 const { loadAliasIndex } = require("./services/termIndex");
 // backend/server.js
 const express = require('express');
