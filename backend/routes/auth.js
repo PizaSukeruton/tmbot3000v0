@@ -171,3 +171,183 @@ router.get('/me', authenticate, (req, res) => {
 });
 
 module.exports = router;
+
+// Admin verification endpoint
+router.get('/verify-admin/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find the invite
+    const invite = await pool.query(
+      'SELECT * FROM invites WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()',
+      [token]
+    );
+
+    if (invite.rows.length === 0) {
+      return res.status(400).send(`
+        <h2>Invalid or Expired Link</h2>
+        <p>This verification link is invalid or has expired.</p>
+        <p>Please contact support if you need assistance.</p>
+      `);
+    }
+
+    const inviteData = invite.rows[0];
+
+    // Show admin setup form
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>TMBot3000 - Admin Setup</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+          .form-group { margin-bottom: 15px; }
+          label { display: block; margin-bottom: 5px; font-weight: bold; }
+          input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+          button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+          button:hover { background-color: #45a049; }
+        </style>
+      </head>
+      <body>
+        <h2>Complete TMBot3000 Admin Setup</h2>
+        <form action="/api/auth/complete-admin-setup" method="POST">
+          <input type="hidden" name="token" value="${token}">
+          
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required minlength="8">
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+          </div>
+          
+          <button type="submit">Create Admin Account</button>
+        </form>
+        
+        <script>
+          document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+              e.preventDefault();
+              alert('Passwords do not match');
+            }
+          });
+        </script>
+      </body>
+      </html>
+    `);
+
+  } catch (error) {
+    console.error('[AUTH] Admin verification error:', error);
+    res.status(500).send('Internal server error');
+  }
+});
+
+// Admin verification endpoint
+router.get('/verify-admin/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    // Find the invite
+    const invite = await pool.query(
+      'SELECT * FROM invites WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()',
+      [token]
+    );
+
+    if (invite.rows.length === 0) {
+      return res.status(400).send(`
+        <h2>Invalid or Expired Link</h2>
+        <p>This verification link is invalid or has expired.</p>
+        <p>Please contact support if you need assistance.</p>
+      `);
+    }
+
+    const inviteData = invite.rows[0];
+
+    // Show admin setup form
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>TMBot3000 - Admin Setup</title>
+        <style>
+          body { font-family: Arial, sans-serif; max-width: 500px; margin: 50px auto; padding: 20px; }
+          .form-group { margin-bottom: 15px; }
+          label { display: block; margin-bottom: 5px; font-weight: bold; }
+          input { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+          button { background-color: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; width: 100%; }
+          button:hover { background-color: #45a049; }
+        </style>
+      </head>
+      <body>
+        <h2>Complete TMBot3000 Admin Setup</h2>
+        <form action="/api/auth/complete-admin-setup" method="POST">
+          <input type="hidden" name="token" value="${token}">
+          
+          <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required minlength="8">
+          </div>
+          
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password:</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+          </div>
+          
+          <button type="submit">Create Admin Account</button>
+        </form>
+        
+        <script>
+          document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+              e.preventDefault();
+              alert('Passwords do not match');
+            }
+          });
+        </script>
+      </body>
+      </html>
+    `);
+
+  } catch (error) {
+    console.error('[AUTH] Admin verification error:', error);
+    res.status(500).send('Internal server error');
+  }
+});
