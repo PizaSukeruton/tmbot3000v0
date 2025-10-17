@@ -351,3 +351,61 @@ router.get('/verify-admin/:token', async (req, res) => {
     res.status(500).send('Internal server error');
   }
 });
+
+// Complete admin setup endpoint
+router.post('/complete-admin-setup', async (req, res) => {
+  try {
+    const { token, username, firstName, lastName, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.status(400).send('<h2>Error</h2><p>Passwords do not match</p>');
+    }
+
+    // Verify token again
+    const invite = await pool.query(
+      'SELECT * FROM invites WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()',
+      [token]
+    );
+
+    if (invite.rows.length === 0) {
+      return res.status(400).send('<h2>Error</h2><p>Invalid or expired token</p>');
+    }
+
+    const inviteData = invite.rows[0];
+
+    // Check if username already exists
+    const existingUser = await pool.query('SELECT id FROM users WHERE username = $1', [username]);
+    if (existingUser.rows.length > 0) {
+      return res.status(400).send('<h2>Error</h2><p>Username already exists</p>');
+    }
+
+    // Hash password and create user
+    const bcrypt = require('bcrypt');
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    const userResult = await pool.query(
+      `INSERT INTO users (username, email, password_hash, first_name, last_name, role_id, is_active) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, username`,
+      [username, inviteData.email, passwordHash, firstName, lastName, inviteData.role_id, true]
+    );
+
+    // Mark invite as used
+    await pool.query(
+      'UPDATE invites SET used_at = NOW() WHERE token = $1',
+      [token]
+    );
+
+    console.log(`[AUTH] Admin user created: ${userResult.rows[0].username}`);
+
+    res.send(`
+      <h2>Admin Account Created Successfully!</h2>
+      <p>Your TMBot3000 admin account has been created.</p>
+      <p><strong>Username:</strong> ${username}</p>
+      <p>You can now log in to TMBot3000 using your credentials.</p>
+    `);
+
+  } catch (error) {
+    console.error('[AUTH] Admin setup completion error:', error);
+    res.status(500).send('<h2>Error</h2><p>Failed to create admin account</p>');
+  }
+});
