@@ -1,4 +1,7 @@
 require('dotenv').config();
+const fs = require("fs");
+console.log("Node Modules Exists:", fs.existsSync("./node_modules"));
+console.log("Fuse Exists:", fs.existsSync("./node_modules/fuse.js"));
 console.log("Fuse path check:", require.resolve("fuse.js"));
 const { loadAliasIndex } = require("./services/termIndex");
 // backend/server.js
