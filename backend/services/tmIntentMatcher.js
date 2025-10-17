@@ -1,3 +1,4 @@
+const Fuse = require("fuse.js");
 const { normalize } = require("./normalizer");
 const { lookupExact, lookupInSentence } = require("./termIndex");
 const { cleanName } = require('../utils/textUtils');
