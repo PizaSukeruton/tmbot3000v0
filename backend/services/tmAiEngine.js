@@ -11,8 +11,10 @@ const db = { query: (text, params) => __pool.query(text, params) };
 
 // The createCsvDataSource is in the same directory as this file.
 const { createCsvDataSource } = require("./csvDataSource");
-const DATA_DIR = process.env.TM_DATA_DIR || path.join(__dirname, "..", "data");
-const dataSource = createCsvDataSource({ dataDir: DATA_DIR });
+const DATA_DIR = process.env.TM_DATA_DIR || path.resolve(__dirname, "..", "data");
+console.log("[CSV-DIR]", DATA_DIR);
+const prodNotesPath = path.join(DATA_DIR, "production_notes.csv");
+console.log("[CSV-FILE-EXISTS]", require("fs").existsSync(prodNotesPath));const dataSource = createCsvDataSource({ dataDir: DATA_DIR });
 
 // -------- helpers --------
 // This function dynamically gets the term IDs from the database.
