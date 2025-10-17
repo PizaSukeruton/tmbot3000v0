@@ -13,7 +13,7 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            background: #000;
+            background: #000000;
             color: #fff;
             min-height: 100vh;
         }
@@ -34,24 +34,16 @@
         .login-box {
             width: 100%;
             max-width: 400px;
-        }
-        
-        .login-title {
             text-align: center;
-            margin-bottom: 2rem;
         }
         
         .login-title h1 {
             font-size: 2.5rem;
             font-weight: bold;
-            margin-bottom: 0.5rem;
+            margin-bottom: 2rem;
         }
         
-        .input-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        input {
+        .login-input {
             width: 100%;
             padding: 0.75rem 1rem;
             background: #1a1a1a;
@@ -60,14 +52,15 @@
             color: #fff;
             font-size: 1.125rem;
             text-align: center;
+            margin-bottom: 1.5rem;
         }
         
-        input:focus {
+        .login-input:focus {
             outline: none;
             border-color: #3b82f6;
         }
         
-        button {
+        .login-btn {
             width: 100%;
             padding: 0.75rem;
             border: none;
@@ -75,47 +68,52 @@
             font-size: 1.125rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-        }
-        
-        .btn-primary {
             background: #3b82f6;
             color: #fff;
+            transition: background 0.2s;
         }
         
-        .btn-primary:active {
+        .login-btn:active {
             background: #2563eb;
+        }
+        
+        .login-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        .login-error {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        
+        .main-screen {
+            min-height: 100vh;
+            display: none;
         }
         
         .header {
             padding: 1rem;
             border-bottom: 1px solid #333;
-        }
-        
-        .header-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-        
-        .header-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            flex: 1;
             text-align: center;
         }
         
         .user-info {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.5rem;
+            margin-bottom: 1rem;
         }
         
         .status-dot {
             width: 12px;
             height: 12px;
             border-radius: 50%;
+            background: #22c55e;
             animation: pulse 2s infinite;
         }
         
@@ -124,34 +122,26 @@
             50% { opacity: 0.5; }
         }
         
-        .status-dot.green { background: #22c55e; }
-        .status-dot.yellow { background: #eab308; }
-        .status-dot.red { background: #ef4444; }
-        
-        .status-badge {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 0.75rem;
-            border-radius: 0.5rem;
+        .datetime {
+            font-size: 0.875rem;
+            color: #9ca3af;
+            margin-bottom: 0.5rem;
         }
         
-        .status-badge.green { background: rgba(34, 197, 94, 0.2); }
-        .status-badge.yellow { background: rgba(234, 179, 8, 0.2); }
-        .status-badge.red { background: rgba(239, 68, 68, 0.2); }
-        
-        .status-text {
-            flex: 1;
-            text-align: center;
-        }
-        
-        .status-label {
+        .username {
+            font-size: 1.125rem;
             font-weight: 600;
         }
         
-        .status-desc {
-            font-size: 0.875rem;
-            opacity: 0.9;
+        .logout-btn {
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
         }
         
         .button-grid {
@@ -161,20 +151,112 @@
             padding: 1rem;
         }
         
+        .button-grid.single {
+            grid-template-columns: 1fr;
+            max-width: 200px;
+            margin: 0 auto;
+        }
+        
         .day-button {
             padding: 1.5rem 1rem;
             background: #1a1a1a;
             color: #9ca3af;
             font-size: 1.125rem;
             font-weight: 600;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
         }
         
         .day-button.active {
-            background: #3b82f6;
+
+        .menu-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .menu-dropdown {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            min-width: 200px;
+            z-index: 1000;
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-dropdown.show {
+            display: block !important;
+        }
+
+        .menu-item {
+            padding: 0.75rem 1rem;
+            color: #fff;
+            cursor: pointer;
+            border-bottom: 1px solid #333;
+            transition: background 0.2s;
+        }
+
+        .menu-item:hover {
+            background: #333;
+        }
+
+        .menu-item:last-child {
+
+        .menu-container-full {
+            padding: 1rem;
+        }
+
+        .menu-header {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .menu-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0 0 0.5rem 0.5rem;
+            border: 1px solid #333;
+            border-top: none;
+        }
+
+        .menu-option {
+            padding: 1rem;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .menu-option:hover {
+            background: #555;
+        }            border-bottom: none;
+        }            background: #3b82f6;
             color: #fff;
         }
         
-        .content {
+        .schedule-container {
             padding: 1rem;
         }
         
@@ -183,83 +265,93 @@
             border-radius: 0.5rem;
             padding: 1.5rem;
             margin-bottom: 1rem;
+            min-height: 200px;
+            display: none;
+        }
+        
+        .schedule.visible {
+            display: block !important;
         }
         
         .schedule h2 {
             font-size: 1.25rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             text-align: center;
         }
         
-        .schedule-item {
-            border-left: 4px solid;
-            padding-left: 1rem;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
+        .event-item {
+            border-left: 4px solid #3b82f6;
+            padding: 1rem;
             margin-bottom: 1rem;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 0 0.5rem 0.5rem 0;
         }
         
-        .schedule-item.blue { border-color: #3b82f6; }
-        .schedule-item.green { border-color: #22c55e; }
+        .event-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.5rem;
+        }
         
-        .schedule-label {
+        .event-time {
+            color: #3b82f6;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .event-description {
             color: #9ca3af;
             font-size: 0.875rem;
+        }
+        
+        .no-events {
             text-align: center;
-            margin-bottom: 0.25rem;
+            color: #9ca3af;
+            font-style: italic;
         }
         
-        .schedule-time {
-            font-size: 1.125rem;
-            font-weight: 600;
+        .loading {
             text-align: center;
+            color: #9ca3af;
         }
         
-        .chat-button {
-            background: #1a1a1a;
-            color: #fff;
+        .error {
+            text-align: center;
+            color: #ef4444;
         }
         
-        .chat-button:active {
-            background: #333;
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        .chat-screen {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+        .chat-container {
+            padding: 1rem;
         }
         
         .chat-header {
+            background: #1a1a1a;
             padding: 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
             border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
         }
         
-        .back-button {
-            width: auto;
-            padding: 0.5rem 1rem;
-            background: #1a1a1a;
-            color: #fff;
-            font-size: 1rem;
+        .chat-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            text-align: center;
+            margin: 0;
         }
         
         .chat-messages {
-            flex: 1;
-            padding: 1rem;
+            background: #1a1a1a;
+            min-height: 300px;
+            max-height: 400px;
             overflow-y: auto;
-            max-height: calc(100vh - 200px);
+            padding: 1rem;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
         }
         
         .message {
+            white-space: pre-line;
             margin-bottom: 1rem;
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 0.5rem;
             max-width: 85%;
         }
@@ -271,251 +363,412 @@
         }
         
         .message.bot {
-            background: #1a1a1a;
+            background: #333;
             margin-right: auto;
-        }
-        
-        .message.loading {
-            background: #1a1a1a;
-            margin-right: auto;
-            opacity: 0.7;
-        }
-        
-        .chat-input-container {
-            padding: 1rem;
-            border-top: 1px solid #333;
-            background: #000;
         }
         
         .chat-input-wrapper {
             display: flex;
             gap: 0.5rem;
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0 0 0.5rem 0.5rem;
+            border: 1px solid #333;
+            border-top: none;
         }
         
         .chat-input {
             flex: 1;
             padding: 0.75rem;
-            background: #1a1a1a;
+            background: #000000;
             border: 1px solid #333;
             border-radius: 0.5rem;
             color: #fff;
             font-size: 1rem;
-            text-align: left;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
         }
         
         .send-button {
-            width: auto;
             padding: 0.75rem 1.5rem;
             background: #3b82f6;
             color: #fff;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .send-button:active {
+            background: #2563eb;
         }
         
         .send-button:disabled {
             background: #333;
             color: #666;
+            cursor: not-allowed;
+        }
+        
+        .hidden {
+            display: none;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Login Screen -->
         <div id="loginScreen" class="login-screen">
             <div class="login-box">
                 <div class="login-title">
                     <h1>TMBot3000</h1>
                 </div>
-                <div class="input-group">
-                    <input type="text" id="usernameInput" placeholder="Enter your username" />
-                </div>
-                <button class="btn-primary" onclick="login()">Login</button>
+                <input type="text" id="usernameInput" class="login-input" placeholder="Username" />
+                <input type="password" id="passwordInput" class="login-input" placeholder="Password" />
+                <button id="loginBtn" class="login-btn">Login</button>
+                <div id="loginError" class="login-error">Invalid username or password</div>
             </div>
         </div>
         
-        <div id="mainScreen" class="hidden">
+        <!-- Main Screen -->
+        <div id="mainScreen" class="main-screen">
             <header class="header">
-                <div class="header-top">
-                    <div class="header-title">TMBot3000</div>
-                    <div class="user-info">
-                        <div class="status-dot green" id="statusDot"></div>
-                        <span id="username"></span>
-                    </div>
-                </div>
-                <div class="status-badge green" id="statusBadge">
-                    <div class="status-text">
-                        <div class="status-label">System Status</div>
-                        <div class="status-desc" id="statusText">All Clear</div>
+                <div class="user-info">
+                    <div class="status-dot"></div>
+                    <div>
+                        <div id="datetime" class="datetime"></div>
+                        <div id="username" class="username"></div>
+                        <button id="logoutBtn" class="logout-btn">Logout</button>
                     </div>
                 </div>
             </header>
             
-            <div class="button-grid">
-                <button class="day-button" id="todayBtn" onclick="showSchedule('today')">Today</button>
-                <button class="day-button" id="tomorrowBtn" onclick="showSchedule('tomorrow')">Tomorrow</button>
-            </div>
-            
-            <div class="content">
-                <div id="scheduleSection" class="hidden">
-                    <div class="schedule">
-                        <h2 id="scheduleTitle">Today's Schedule</h2>
-                        <div class="schedule-item blue">
-                            <div class="schedule-label">Load In</div>
-                            <div class="schedule-time">14:00 AEST</div>
-                        </div>
-                        <div class="schedule-item blue">
-                            <div class="schedule-label">Soundcheck</div>
-                            <div class="schedule-time">16:00 AEST</div>
-                        </div>
-                        <div class="schedule-item blue">
-                            <div class="schedule-label">Doors</div>
-                            <div class="schedule-time">18:30 AEST</div>
-                        </div>
-                        <div class="schedule-item green">
-                            <div class="schedule-label">Show Time</div>
-                            <div class="schedule-time">20:00 AEST</div>
-                        </div>
-                    </div>
+            <div class="button-grid" id="scheduleButtons">
+                <button id="todayBtn" class="day-button">Today</button>
+                <button id="tomorrowBtn" class="day-button">Tomorrow</button>
+                <div class="menu-container">
+                <button id="menuBtn" class="day-button">Menu</button>
+                    <div class="menu-item" data-action="tour-party">Tour Party</div>
+                    <div class="menu-item" data-action="check-flights">Check Flights</div>
+                    <div class="menu-item" data-action="check-traffic">Check Traffic</div>
+                    <div class="menu-item" data-action="weather">Weather</div>
+                    <div class="menu-item" data-action="setlists">Setlists</div>
+                    <div class="menu-item" data-action="guest-list">Guest List</div>
+                    <div class="menu-item" data-action="help">Help</div>
                 </div>
-                
-                <button class="chat-button" onclick="openChat()">Ask TMBot a Question</button>
             </div>
-        </div>
-        
+            <button id="chatBtn" class="day-button">Chat</button>
             </div>
             
-            <div class="chat-messages" id="chatMessages">
-                <div class="message bot">
-                    Hi! I'm TMBot3000. Ask me anything about the tour schedule, venues, flights, or crew contacts.
+            <div class="button-grid single hidden" id="chatButtons">
+                <button id="backBtn" class="day-button">← Back to Schedule</button>
+            </div>
+            
+            <div class="schedule-container" id="scheduleContainer">
+                <div id="schedule" class="schedule">
+                    <h2 id="scheduleTitle">Select a Day</h2>
+                    <div class="no-events">Click Today or Tomorrow to view the schedule</div>
                 </div>
             </div>
             
-            <div class="chat-input-container">
+            <!-- Menu Interface -->
+            <div class="menu-container-full hidden">
+                <div class="menu-header">
+                    <h3>Tour Management Menu</h3>
+                </div>
+                <div class="menu-grid">
+                    <button class="menu-option" data-action="events">Events</button>
+                    <button class="menu-option" data-action="tour-party">Tour Party</button>
+                    <button class="menu-option" data-action="check-flights">Check Flights</button>
+                    <button class="menu-option" data-action="check-traffic">Check Traffic</button>
+                    <button class="menu-option" data-action="weather">Weather</button>
+                    <button class="menu-option" data-action="setlists">Setlists</button>
+                    <button class="menu-option" data-action="guest-list">Guest List</button>
+                    <button class="menu-option" data-action="help">Help</button>
+                </div>
+            </div>
+            <!-- Chat Interface -->
+            <div class="chat-container hidden">
+                <div class="chat-header">
+                    <h3>Ask TMBot a Question</h3>
+                </div>
+                <div id="chatMessages" class="chat-messages"></div>
                 <div class="chat-input-wrapper">
-                    <input 
-                        type="text" 
-                        class="chat-input" 
-                        placeholder="Type your question..."
-                    />
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Type your question..." />
+                    <button id="sendButton" class="send-button">Send</button>
                 </div>
             </div>
         </div>
     </div>
     
     <script>
-        let currentStatus = 'green';
-        let currentView = null;
         let currentUser = '';
-        const API_URL = window.location.origin;
+        let currentView = null;
+        let userLocation = '';
+        let authToken = null;
         
-        function login() {
+        // Authentication functions
+        async function login() {
             const username = document.getElementById('usernameInput').value.trim();
-            if (username) {
-                currentUser = username;
-                document.getElementById('username').textContent = username;
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('mainScreen').classList.remove('hidden');
-            }
-        }
-        
-        document.getElementById('usernameInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
-        });
-        
-        function displayScheduleData(data) {
-            const scheduleDiv = document.querySelector('.schedule');
+            const password = document.getElementById('passwordInput').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
             
-            if (data.events && data.events.length > 0) {
-                let html = `<h2>${data.day}'s Schedule</h2>`;
-                data.events.forEach(event => {
-                    html += `
-                        <div class="schedule-item blue">
-                            <div class="schedule-label">${event.title}</div>
-                            <div class="schedule-time">${event.time}</div>
-                            <div class="schedule-desc">${event.description}</div>
-                        </div>`;
-                });
-                scheduleDiv.innerHTML = html;
-            } else {
-                scheduleDiv.innerHTML = `<h2>${data.day}'s Schedule</h2><p>No events scheduled</p>`;
-            }
-        }
-        async function showSchedule(view) {
-            // Prevent multiple simultaneous calls
-            if (window.loadingSchedule) {
-                console.log("Already loading, skipping");
+            if (!username || !password) {
+                showLoginError('Please enter both username and password');
                 return;
-            }            window.loadingSchedule = true;            console.log("showSchedule called with:", view);            currentView = view;
+            }
             
-            // Show loading state
-            document.getElementById('scheduleSection').classList.remove('hidden');
-            document.getElementById('scheduleTitle').textContent = 
-                view === 'today' ? "Today's Schedule" : "Tomorrow's Schedule";
-            
-            document.getElementById('todayBtn').classList.toggle('active', view === 'today');
-            document.getElementById('tomorrowBtn').classList.toggle('active', view === 'tomorrow');
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            errorDiv.style.display = 'none';
             
             try {
-                const response = await fetch(`${window.location.origin}/api/schedule/${view}`);
-                const data = await response.json();
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
                 
-                displayScheduleData(data);
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUser = data.user.username;
+                    
+                    // Store token for session persistence
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('username', currentUser);
+                    
+                    showMainScreen();
+                } else {
+                    const error = await response.json();
+                    showLoginError(error.message || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('Connection error. Please try again.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+        
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function logout() {
+            authToken = null;
+            currentUser = '';
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainScreen').style.display = 'none';
+            
+            // Clear form
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        function showMainScreen() {
+            document.getElementById('username').textContent = currentUser;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            getUserLocation();
+            updateDateTime();
+            
+            // Force hide menu dropdown on load
+            document.getElementById("menuDropdown").classList.remove("show");            setInterval(updateDateTime, 60000);
+        }
+        
+        // Check for existing session on page load
+        function checkExistingSession() {
+            const token = localStorage.getItem('authToken');
+            const username = localStorage.getItem('username');
+            
+            if (token && username) {
+                authToken = token;
+                currentUser = username;
+                showMainScreen();
+            }
+        }
+        
+        // Get user location
+        async function getUserLocation() {
+            try {
+                if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(async (position) => {
+                        const { latitude, longitude } = position.coords;
+                        try {
+                            const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
+                            const data = await response.json();
+                            userLocation = `${data.city}, ${data.principalSubdivision}`;
+                            updateDateTime();
+            
+            // Force hide menu dropdown on load
+            document.getElementById("menuDropdown").classList.remove("show");                        } catch (error) {
+                            console.log('Could not get location name');
+                        }
+                    }, (error) => {
+                        console.log('Location access denied');
+                    });
+                }
+            } catch (error) {
+                console.log('Geolocation not available');
+            }
+        }
+        
+        // Update date and time
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            let timeString = now.toLocaleDateString('en-AU', options);
+            if (userLocation) {
+                timeString += ` • ${userLocation}`;
+            }
+            document.getElementById('datetime').textContent = timeString;
+        }
+        
+        // Toggle between schedule and chat modes
+        function showChatMode() {
+            console.log('Chat mode activated');
+            document.getElementById("scheduleButtons").classList.add("hidden");
+            document.getElementById("chatButtons").classList.remove("hidden");
+            document.getElementById("scheduleContainer").classList.add("hidden");
+            document.querySelector(".chat-container").classList.remove("hidden");
+        }
+        
+        function hideAllModes() {
+            document.querySelector(".chat-container").classList.add("hidden");
+            document.querySelector(".menu-container-full").classList.add("hidden");
+        }
+        function showMenuMode() {
+            document.getElementById("scheduleButtons").classList.add("hidden");
+            document.getElementById("chatButtons").classList.remove("hidden");
+            document.getElementById("scheduleContainer").classList.add("hidden");
+            document.querySelector(".chat-container").classList.add("hidden");
+            document.querySelector(".menu-container-full").classList.remove("hidden");
+        }
+        function showScheduleMode() {
+            console.log('Schedule mode activated');
+            document.getElementById("scheduleButtons").classList.remove("hidden");
+            document.getElementById("chatButtons").classList.add("hidden");
+            document.getElementById("scheduleContainer").classList.remove("hidden");
+            document.querySelector(".chat-container").classList.add("hidden");
+        }
+        
+        // Schedule functionality
+        async function showSchedule(view) {
+            if (currentView === view) return;
+            
+            currentView = view;
+            
+            const todayBtn = document.getElementById("todayBtn");
+            const tomorrowBtn = document.getElementById("tomorrowBtn");
+            if (todayBtn) {
+                todayBtn.classList.remove("active");
+                if (view === "today") todayBtn.classList.add("active");
+            }
+            if (tomorrowBtn) {
+                tomorrowBtn.classList.remove("active");
+                if (view === "tomorrow") tomorrowBtn.classList.add("active");
+            }
+            
+            const scheduleDiv = document.getElementById('schedule');
+            scheduleDiv.classList.add('visible');
+            
+            const title = view === 'today' ? "Today's Schedule" : "Tomorrow's Schedule";
+            const scheduleTitle = document.getElementById('scheduleTitle');
+            if (scheduleTitle) {
+                scheduleTitle.textContent = title;
+            } else {
+                console.error("Element with id 'scheduleTitle' not found.");
+                return;
+            }
+            
+            if (!scheduleDiv) {
+                console.error("Schedule div not found");
+                return;
+            }
+            
+            scheduleDiv.innerHTML = `<h2>${title}</h2><div class="loading">Loading schedule...</div>`;
+            
+            try {
+                const response = await fetch(`/api/schedule/${view}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                displayScheduleData(data, title);
+                
             } catch (error) {
                 console.error('Error fetching schedule:', error);
-            } finally {
-                window.loadingSchedule = false;
-            }        }        
-        function toggleStatus() {
-            const statuses = ['green', 'yellow', 'red'];
-            const statusTexts = {
-                'green': 'All Clear',
-                'yellow': 'Issues to Sort',
-                'red': 'Changes Required'
-            };
+                if (!scheduleDiv) {
+                    console.error("Schedule div not found");
+                    return;
+                }
+                scheduleDiv.innerHTML = `<h2>${title}</h2><div class="error">Error loading schedule data</div>`;
+            }
+        }
+        
+        function displayScheduleData(data, title) {
+            const scheduleDiv = document.getElementById('schedule');
+            let html = `<h2 id="scheduleTitle">${title}</h2>`;
             
-            const currentIndex = statuses.indexOf(currentStatus);
-            currentStatus = statuses[(currentIndex + 1) % 3];
+            if (data.events && data.events.length > 0) {
+                data.events.forEach(event => {
+                    html += `
+                        <div class="event-item">
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-time">${event.time}</div>
+                            <div class="event-description">${event.description}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<div class="no-events">No events scheduled</div>';
+            }
             
-            document.getElementById('statusDot').className = `status-dot ${currentStatus}`;
-            document.getElementById('statusBadge').className = `status-badge ${currentStatus}`;
-            document.getElementById('statusText').textContent = statusTexts[currentStatus];
+            if (!scheduleDiv) {
+                console.error("Schedule div not found");
+                return;
+            }
+            scheduleDiv.innerHTML = html;
         }
         
-        function openChat() {
-            document.getElementById('mainScreen').classList.add('hidden');
-            document.getElementById('chatScreen').classList.remove('hidden');
-        }
-        
-        function closeChat() {
-            document.getElementById('chatScreen').classList.add('hidden');
-            document.getElementById('mainScreen').classList.remove('hidden');
-        }
-        
+        // Chat functionality
         function addMessage(text, isUser) {
             const messagesDiv = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
             messageDiv.textContent = text;
             messagesDiv.appendChild(messageDiv);
+            
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-        
-        function addLoadingMessage() {
-            const messagesDiv = document.getElementById('chatMessages');
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'message loading';
-            loadingDiv.id = 'loadingMessage';
-            loadingDiv.textContent = 'TMBot is thinking...';
-            messagesDiv.appendChild(loadingDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
-        }
-        
-        function removeLoadingMessage() {
-            const loadingMsg = document.getElementById('loadingMessage');
-            if (loadingMsg) {
-                loadingMsg.remove();
-            }
-        }
-        
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
             const message = input.value.trim();
             
             if (!message) return;
@@ -523,14 +776,15 @@
             addMessage(message, true);
             input.value = '';
             
-            document.getElementById('sendButton').disabled = true;
-            addLoadingMessage();
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
             
             try {
-                const response = await fetch(`${API_URL}/api/chat/message`, {
+                const response = await fetch('/api/chat/message', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         memberId: currentUser,
@@ -539,24 +793,111 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`Server responded with ${response.status}`);
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
                 }
                 
                 const data = await response.json();
-                removeLoadingMessage();
-                addMessage(data.aiResponse?.text || 'Sorry, I didn\'t understand that.', false);
+                addMessage(data.aiResponse?.text || 'Sorry, I could not understand that.', false);
                 
             } catch (error) {
-                console.error('Error:', error);
-                removeLoadingMessage();
-                addMessage('Sorry, I\'m having trouble connecting. Please try again.', false);
+                console.error('Chat error:', error);
+                addMessage('Sorry, I am having trouble connecting. Please try again.', false);
             } finally {
-                window.loadingSchedule = false;
-            }        }
-        
-            if (e.key === 'Enter') {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+                input.focus();
             }
-        });
+        }
+        
+        // Menu action handler
+        function handleMenuAction(action) {
+            console.log("Menu action:", action);
+            switch(action) {
+                case "events":
+                    alert("Events feature coming soon");
+                    break;
+                case "tour-party":
+                    alert("Tour Party management coming soon");
+                    break;
+                case "check-flights":
+                    alert("Flight checker coming soon");
+                    break;
+                case "check-traffic":
+                    alert("Traffic checker coming soon");
+                    break;
+                case "weather":
+                    alert("Weather coming soon");
+                    break;
+                case "setlists":
+                    alert("Setlists coming soon");
+                    break;
+                case "guest-list":
+                    alert("Guest List coming soon");
+                    break;
+                case "help":
+                    alert("Help system coming soon");
+                    break;
+                default:
+                    console.log("Unknown action:", action);
+            }
+        }
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing session first
+            checkExistingSession();
+            
+            // Login event listeners
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('passwordInput').focus();
+                }
+            });
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            
+            // Logout event listener
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Schedule button event listeners
+            document.getElementById('todayBtn').addEventListener('click', () => showSchedule('today'));
+            document.getElementById("tomorrowBtn").addEventListener("click", () => showSchedule("tomorrow"));
+            document.getElementById("chatBtn").addEventListener("click", showChatMode);
+            document.getElementById("backBtn").addEventListener("click", function() { hideAllModes(); showScheduleMode(); });
+            
+            // Menu functionality
+            document.getElementById("menuBtn").addEventListener("click", function() {
+                showMenuMode();
+            });
+            // Close menu when clicking outside
+            document.addEventListener("click", function() {
+                document.getElementById("menuDropdown").classList.remove("show");
+            });
+
+            // Menu item handlers
+            document.querySelectorAll(".menu-item").forEach(item => {
+                item.addEventListener("click", function() {
+                    const action = this.dataset.action;
+                    handleMenuAction(action);
+                    document.getElementById("menuDropdown").classList.remove("show");
+                });
+            });
+            // Chat event listeners
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            // Initialize
+            updateDateTime();
+            
+            // Force hide menu dropdown on load
+            document.getElementById("menuDropdown").classList.remove("show");        });
     </script>
 </body>
 </html>

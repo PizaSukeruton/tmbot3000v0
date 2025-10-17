@@ -3,6 +3,47 @@ const { lookupExact, lookupInSentence } = require("./termIndex");
 const { cleanName } = require('../utils/textUtils');
 
 class TmIntentMatcher {
+  static ROLE_ALIASES = {
+    "sound": "FOH Tech",
+    "lights": "Lighting Tech",
+    "lighting": "Lighting Tech",
+    "monitors": "Monitor Tech",
+    "guitar": "Guitar Tech",
+    "drums": "Drum Tech",
+    "keyboards": "Keyboard Tech",
+    "keys": "Keyboard Tech",    "sound engineer": "FOH Tech",
+    "front of house engineer": "FOH Tech",
+    "audio engineer": "FOH Tech",
+    "foh engineer": "FOH Tech",
+    "stage manager": "Stage Tech",
+    "monitor engineer": "Monitor Tech",
+    "monitor mix": "Monitor Tech",
+    "guitar technician": "Guitar Tech",
+    "drum technician": "Drum Tech",
+    "keyboard technician": "Keyboard Tech",
+    "lighting designer": "Lighting Tech",
+    "lighting engineer": "Lighting Tech",
+    "crew chief": "Production Manager",
+    "prod manager": "Production Manager"
+  };
+
+  static canonicalizeEntity(input, type) {
+    if (!input) return input;
+    input = input.trim().toLowerCase();
+
+    if (type === "role") {
+      if (TmIntentMatcher.ROLE_ALIASES[input]) return TmIntentMatcher.ROLE_ALIASES[input];
+      const dataSource = require("./csvDataSource");
+      const csvData = dataSource.createCsvDataSource({ dataDir: "./data" });
+      const roles = csvData.getRoles();
+      const Fuse = require("fuse.js");
+      const fuse = new Fuse(roles, { threshold: 0.33 });
+      const match = fuse.search(input)[0];
+      return match ? match.item : input;
+    }
+
+    return input;
+  }
   async matchIntent(content, options = {}, member = {}) {
     const raw = String(content || "");
     const q = cleanName(raw).toLowerCase();
@@ -29,11 +70,20 @@ class TmIntentMatcher {
 
     // Check for "who is" queries
     const whoIsMatch = q.match(/who\s+is\s+(?:the\s+)?(.+?)\??$/i);
-    if (whoIsMatch) {
+    
+    // Check for "who is doing" queries
+    const whoIsDoingMatch = q.match(/who\s+is\s+doing\s+(?:the\s+)?(.+?)\??$/i);
+    if (whoIsDoingMatch) {
       return {
         intent_type: "personnel_query",
         confidence: 0.95,
-        entities: { person_name: whoIsMatch[1].trim() }
+        entities: { person_name: TmIntentMatcher.canonicalizeEntity(whoIsDoingMatch[1].trim(), "role") }
+      };
+    }    if (whoIsMatch) {
+      return {
+        intent_type: "personnel_query",
+        confidence: 0.95,
+        entities: { person_name: TmIntentMatcher.canonicalizeEntity(whoIsMatch[1].trim(), "role") }
       };
     }
 

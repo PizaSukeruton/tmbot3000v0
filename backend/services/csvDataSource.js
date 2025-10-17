@@ -409,7 +409,7 @@ function createCsvDataSource({ dataDir }) {
         
         // Search through all production notes
         for (const row of prodNotes) {
-          if (row.category === "crew" && row.note) {
+          if ((row.category === "crew" || row.category === "venue") && row.note) {
             const match = row.note.match(/^(.+?):\s*(.+?)\s*-\s*contact\s*(.+)$/i);
             
             if (match) {
@@ -597,6 +597,33 @@ function createCsvDataSource({ dataDir }) {
     getCities: function() {
       const cities = [...new Set(shows.map(s => s.city).filter(c => c))];
       return cities;
+    },
+
+    debugProdNotes: function() {
+      console.log("prodNotes length:", prodNotes ? prodNotes.length : "undefined");
+      if (prodNotes && prodNotes.length > 0) {
+        console.log("First row keys:", Object.keys(prodNotes[0]));
+        console.log("First row sample:", prodNotes[0]);
+      }
+      return prodNotes ? prodNotes.length : 0;
+    },
+    getRoles: function() {
+      console.log("Inside getRoles - prodNotes length:", prodNotes ? prodNotes.length : "undefined");
+      const roles = new Set();
+      let processedCount = 0;
+      for (const row of prodNotes) {
+        processedCount++;
+        if ((row.category === "crew" || row.category === "venue") && row.note) {
+          console.log("Processing crew note:", row.note);
+          const match = row.note.match(/^(.+?):\s*(.+?)\s*-\s*contact\s*(.+)$/i);
+          if (match) {
+            console.log("Role found:", match[1].trim());
+            roles.add(match[1].trim());
+          }
+        }
+      }
+      console.log("Processed", processedCount, "rows, found", roles.size, "roles");
+      return Array.from(roles);
     }
   };
 }

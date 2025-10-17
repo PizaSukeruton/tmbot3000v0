@@ -74,3 +74,33 @@ show_id,category,note,priority,created_by
 #605005,crew,Promoter: Sage Mitchell - contact +61 412 555 0513,high,Venue
 #605005,venue,Venue Contact: Luna Brown - contact +61 412 555 0514,high,Venue
 #605005,venue,Medical Staff: Atlas Roberts - contact +61 412 555 0515,high,Venue
+#605007,crew,Production Manager: Phoenix Martinez - contact +61 412 555 0701,high,Tour Manager
+#605007,crew,FOH Tech: River Chen - contact +61 412 555 0702,high,Tour Manager
+#605007,crew,Lighting Tech: Sage Rivera - contact +61 412 555 0703,high,Tour Manager
+#605007,crew,Monitor Tech: Atlas Thompson - contact +61 412 555 0704,high,Tour Manager
+#605007,crew,Stage Tech: Wren Martinez - contact +61 412 555 0705,high,Tour Manager
+#605007,crew,Guitar Tech: Storm Lee - contact +61 412 555 0706,high,Tour Manager
+#605007,crew,Drum Tech: Vale Kim - contact +61 412 555 0707,high,Tour Manager
+#605007,crew,Keyboard Tech: Echo Park - contact +61 412 555 0708,high,Tour Manager
+#605007,crew,Percussion Tech: Sage Singh - contact +61 412 555 0709,high,Tour Manager
+#605007,crew,Runner: River Davis - contact +61 412 555 0710,high,Tour Manager
+#605007,crew,Driver: Atlas Wilson - contact +61 412 555 0711,high,Tour Manager
+#605007,crew,Merch Seller: Wren Taylor - contact +61 412 555 0712,high,Tour Manager
+#605007,crew,Promoter: Storm Johnson - contact +61 412 555 0713,high,Tour Manager
+#605007,venue,Venue Contact: Robert Chen - contact +61 412 555 0714,high,Venue
+#605007,venue,Medical Staff: Vale Roberts - contact +61 412 555 0715,high,Venue
+#605009,crew,Production Manager: Coral Martinez - contact +61 412 555 0901,high,Tour Manager
+#605009,crew,FOH Tech: Reef Chen - contact +61 412 555 0902,high,Tour Manager
+#605009,crew,Lighting Tech: Pearl Rivera - contact +61 412 555 0903,high,Tour Manager
+#605009,crew,Monitor Tech: Ocean Thompson - contact +61 412 555 0904,high,Tour Manager
+#605009,crew,Stage Tech: Bay Martinez - contact +61 412 555 0905,high,Tour Manager
+#605009,crew,Guitar Tech: Tide Lee - contact +61 412 555 0906,high,Tour Manager
+#605009,crew,Drum Tech: Wave Kim - contact +61 412 555 0907,high,Tour Manager
+#605009,crew,Keyboard Tech: Shore Park - contact +61 412 555 0908,high,Tour Manager
+#605009,crew,Percussion Tech: Marine Singh - contact +61 412 555 0909,high,Tour Manager
+#605009,crew,Runner: Coast Davis - contact +61 412 555 0910,high,Tour Manager
+#605009,crew,Driver: Harbor Wilson - contact +61 412 555 0911,high,Tour Manager
+#605009,crew,Merch Seller: Pier Taylor - contact +61 412 555 0912,high,Tour Manager
+#605009,crew,Promoter: Surf Johnson - contact +61 412 555 0913,high,Tour Manager
+#605009,venue,Venue Contact: Lisa Wong - contact +61 412 555 0914,high,Venue
+#605009,venue,Medical Staff: Marina Roberts - contact +61 412 555 0915,high,Venue
