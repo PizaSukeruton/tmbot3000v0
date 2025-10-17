@@ -4,19 +4,43 @@ const { loadAliasIndex } = require("./services/termIndex");
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const pool = require('./db/pool');
 const { createCsvDataSource } = require("./services/csvDataSource");
 const DATA_DIR = process.env.TM_DATA_DIR || path.join(__dirname, "data");
 const dataSource = createCsvDataSource({ dataDir: DATA_DIR });
+
 // Core services
 const processor = require('./services/tmMessageProcessor');
+
+// Auth routes
+const authRoutes = require('./routes/auth');
 
 // Create app + processor
 const app = express();
 
-
 app.use(cors());
 app.use(express.json());
+
+// Session middleware
+app.use(session({
+  store: new pgSession({
+    pool: pool,
+    tableName: 'sessions'
+  }),
+  secret: process.env.SESSION_SECRET || 'tmbot3000-session-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));
+
+// Auth routes
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
@@ -44,21 +68,6 @@ app.post('/api/chat/message', async (req, res) => {
   }
 });
 
-// Serve frontend (if built)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// root → serve test UI
-app.get('/', (req,res)=> res.sendFile(path.join(__dirname, 'public', 'index.html')));
-
-// Start server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  loadAliasIndex().then(r => console.log("[AliasIndex] loaded", r)).catch(e => console.error("[AliasIndex] failed", e));
-  console.log(`[Server] Listening on port ${PORT}`);
-});
-
-// test hook
-
 // Schedule endpoint - reads ALL fields dynamically from CSV
 app.get('/api/schedule/:day', async (req, res) => {
   const { day } = req.params;
@@ -72,11 +81,14 @@ app.get('/api/schedule/:day', async (req, res) => {
     
     console.log("[DEBUG] Server now:", now);
     
-    let targetDateStr = (day === 'tomorrow') ? tomorrowStr : todayStr;    // Check both shows and events concurrently
+    let targetDateStr = (day === 'tomorrow') ? tomorrowStr : todayStr;
+    
+    // Check both shows and events concurrently
     const [targetShow, dayEvents] = await Promise.all([
       Promise.resolve(shows.find(show => {
-        return show.date === targetDateStr;      })),
-      dataSource.getEvents(targetDateStr)
+        return show.date === targetDateStr;
+      })),
+      dataSource.getEvents ? dataSource.getEvents(targetDateStr) : Promise.resolve([])
     ]);
     
     const response = {
@@ -97,4 +109,18 @@ app.get('/api/schedule/:day', async (req, res) => {
     console.error('[API] Schedule error:', error);
     res.status(500).json({ error: 'Failed to load schedule' });
   }
+});
+
+// Serve frontend (if built)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// root → serve test UI
+app.get('/', (req,res)=> res.sendFile(path.join(__dirname, 'public', 'index.html')));
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  loadAliasIndex().then(r => console.log("[AliasIndex] loaded", r)).catch(e => console.error("[AliasIndex] failed", e));
+  console.log(`[Server] Listening on port ${PORT}`);
+  console.log(`[Auth] Authentication endpoints available at /api/auth/*`);
 });
