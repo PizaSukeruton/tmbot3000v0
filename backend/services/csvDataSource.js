@@ -593,7 +593,11 @@ function createCsvDataSource({ dataDir }) {
     getEvents: async function(date) {
       if (!date) return events;
       const targetDate = typeof date === 'string' ? date : date.toISOString().split('T')[0];
-      return events.filter(event => event.date === targetDate);    }
+      return events.filter(event => event.date === targetDate);    },
+    getCities: function() {
+      const cities = [...new Set(shows.map(s => s.city).filter(c => c))];
+      return cities;
+    }
   };
 }
 

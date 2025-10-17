@@ -193,37 +193,28 @@ class TmIntentMatcher {
       };
     }
 
-    const locationSpecificMatch = q.match(/(?:the\s+)?(\w+)\s+show(?:\s+on\s+(.+))?/i);
-    if (locationSpecificMatch && locationSpecificMatch[1].toLowerCase() !== "the" && locationSpecificMatch[1].toLowerCase() !== "all" && locationSpecificMatch[1].toLowerCase() !== "list") {
+    // Dynamic city-based matching using known cities
+    const dataSource = require("./csvDataSource");
+    const csvData = dataSource.createCsvDataSource({ dataDir: "./data" });
+    const cities = csvData.getCities();
+    const cityPattern = cities.map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+    const cityRegex = new RegExp(
+      `(?:\\b(?:shows?|concerts?)\\s+(?:in|at|for)\\s+(?<city>${cityPattern}))|` +
+      `(?:(?<city>${cityPattern})\\s+(?:shows?|concerts?))|` +
+      `(?:what\\s+(?:shows?|concerts?)(?:\\s+(?:do\\s+we\\s+have|are))?\\s+(?:in|at|for)\\s+(?<city>${cityPattern}))`,
+      "i"
+    );
+    const cityMatch = q.match(cityRegex);
+    if (cityMatch?.groups?.city) {
       return {
         intent_type: "location_specific_query",
-        confidence: 0.9,
-        entities: { 
-          location: locationSpecificMatch[1],
-          date_string: locationSpecificMatch[2] || null
+        confidence: 0.95,
+        entities: {
+          location: cityMatch.groups.city,
+          date_string: null
         }
       };
     }
-
-    const normQ = normalize(q);
-    let hit = lookupExact(normQ) || lookupInSentence(normQ);
-
-    if (!hit) {
-      const m = q.match(/^(what is|what's|define|meaning of)\s+(.+)$/i);
-      if (m && m[2]) {
-        const cand = normalize(m[2]);
-        hit = lookupExact(cand) || lookupInSentence(cand);
-      }
-    }
-
-    if (hit) {
-      return {
-        intent_type: "term_lookup",
-        confidence: 0.99,
-        entities: { term_id: hit.term_id, term: hit.term || hit.key || null }
-      };
-    }
-
     if (/(?:what|when|which).*flight/i.test(q) ||
         /flight.*(?:info|information|details|status)/i.test(q) ||
         /(?:when|what time).*(?:fly|flying|departure)/i.test(q) ||
@@ -272,6 +263,46 @@ class TmIntentMatcher {
         original_query: content,
         error: String(e?.message || e),
       };
+    }
+
+    // Term lookup as fallback - only when no specific intent matched
+    const normQuery = normalize(q);
+    let hit = lookupExact(normQuery) || lookupInSentence(normQuery);
+
+    if (!hit) {
+      const m = q.match(/^(what is|what's|define|meaning of)\s+(.+)$/i);
+      if (m && m[2]) {
+        const cand = normalize(m[2]);
+        hit = lookupExact(cand) || lookupInSentence(cand);
+      }
+    }
+
+    if (hit) {
+      intent = {
+        intent_type: "term_lookup",
+        confidence: 0.99,
+        entities: { term_id: hit.term_id, term: hit.term || hit.key || null }
+      };
+    }
+
+    // Semantic re-ranking: compare intent entities with parseMessage entities
+
+    if (intent && intent.intent_type && intent.confidence > 0) {
+      try {
+        const tmAiEngine = require("./tmAiEngine");
+        const parsed = tmAiEngine.parseMessage(content);
+        const intentEntities = intent.entities ? Object.values(intent.entities).filter(v => v) : [];
+        const overlap = parsed.entities.filter(e => intentEntities.includes(e));
+        
+        if (overlap.length === 0 && parsed.entities.length > 0) {
+          intent.confidence *= 0.8;
+          if (intent.confidence < 0.6) {
+            intent.intent_type = "term_lookup_fallback";
+          }
+        }
+      } catch (e) {
+        // Semantic re-ranking failed, continue with original intent
+      }
     }
 
     return intent;
