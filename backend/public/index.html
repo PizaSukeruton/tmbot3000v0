@@ -77,6 +77,19 @@
             background: #2563eb;
         }
         
+        .login-btn:disabled {
+            background: #333;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        .login-error {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        
         .main-screen {
             min-height: 100vh;
             display: none;
@@ -118,6 +131,17 @@
         .username {
             font-size: 1.125rem;
             font-weight: 600;
+        }
+        
+        .logout-btn {
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: #ef4444;
+            color: #fff;
+            border: none;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
         }
         
         .button-grid {
@@ -320,8 +344,10 @@
                 <div class="login-title">
                     <h1>TMBot3000</h1>
                 </div>
-                <input type="text" id="usernameInput" class="login-input" placeholder="Enter your username" />
+                <input type="text" id="usernameInput" class="login-input" placeholder="Username" />
+                <input type="password" id="passwordInput" class="login-input" placeholder="Password" />
                 <button id="loginBtn" class="login-btn">Login</button>
+                <div id="loginError" class="login-error">Invalid username or password</div>
             </div>
         </div>
         
@@ -333,6 +359,7 @@
                     <div>
                         <div id="datetime" class="datetime"></div>
                         <div id="username" class="username"></div>
+                        <button id="logoutBtn" class="logout-btn">Logout</button>
                     </div>
                 </div>
             </header>
@@ -372,6 +399,97 @@
         let currentUser = '';
         let currentView = null;
         let userLocation = '';
+        let authToken = null;
+        
+        // Authentication functions
+        async function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!username || !password) {
+                showLoginError('Please enter both username and password');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUser = data.user.username;
+                    
+                    // Store token for session persistence
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('username', currentUser);
+                    
+                    showMainScreen();
+                } else {
+                    const error = await response.json();
+                    showLoginError(error.message || 'Login failed');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showLoginError('Connection error. Please try again.');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+        
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function logout() {
+            authToken = null;
+            currentUser = '';
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('username');
+            
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainScreen').style.display = 'none';
+            
+            // Clear form
+            document.getElementById('usernameInput').value = '';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+        
+        function showMainScreen() {
+            document.getElementById('username').textContent = currentUser;
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            getUserLocation();
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+        }
+        
+        // Check for existing session on page load
+        function checkExistingSession() {
+            const token = localStorage.getItem('authToken');
+            const username = localStorage.getItem('username');
+            
+            if (token && username) {
+                authToken = token;
+                currentUser = username;
+                showMainScreen();
+            }
+        }
         
         // Get user location
         async function getUserLocation() {
@@ -414,20 +532,6 @@
             document.getElementById('datetime').textContent = timeString;
         }
         
-        // Login functionality
-        function login() {
-            const username = document.getElementById('usernameInput').value.trim();
-            if (username) {
-                currentUser = username;
-                document.getElementById('username').textContent = username;
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('mainScreen').style.display = 'block';
-                getUserLocation();
-                updateDateTime();
-                setInterval(updateDateTime, 60000); // Update every minute
-            }
-        }
-        
         // Toggle between schedule and chat modes
         function showChatMode() {
             console.log('Chat mode activated');
@@ -447,11 +551,10 @@
         
         // Schedule functionality
         async function showSchedule(view) {
-            if (currentView === view) return; // Prevent redundant calls
+            if (currentView === view) return;
             
             currentView = view;
             
-            // Update button states
             const todayBtn = document.getElementById("todayBtn");
             const tomorrowBtn = document.getElementById("tomorrowBtn");
             if (todayBtn) {
@@ -466,7 +569,6 @@
             const scheduleDiv = document.getElementById('schedule');
             scheduleDiv.classList.add('visible');
             
-            // Update title and show loading
             const title = view === 'today' ? "Today's Schedule" : "Tomorrow's Schedule";
             const scheduleTitle = document.getElementById('scheduleTitle');
             if (scheduleTitle) {
@@ -476,7 +578,6 @@
                 return;
             }
             
-            // Ensure we have a valid container
             if (!scheduleDiv) {
                 console.error("Schedule div not found");
                 return;
@@ -485,7 +586,11 @@
             scheduleDiv.innerHTML = `<h2>${title}</h2><div class="loading">Loading schedule...</div>`;
             
             try {
-                const response = await fetch(`/api/schedule/${view}`);
+                const response = await fetch(`/api/schedule/${view}`, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
                 
                 const data = await response.json();
@@ -493,7 +598,6 @@
                 
             } catch (error) {
                 console.error('Error fetching schedule:', error);
-                // Ensure we have a valid container
                 if (!scheduleDiv) {
                     console.error("Schedule div not found");
                     return;
@@ -520,7 +624,6 @@
                 html += '<div class="no-events">No events scheduled</div>';
             }
             
-            // Ensure we have a valid container
             if (!scheduleDiv) {
                 console.error("Schedule div not found");
                 return;
@@ -536,7 +639,6 @@
             messageDiv.textContent = text;
             messagesDiv.appendChild(messageDiv);
             
-            // Auto-scroll to bottom
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
@@ -547,11 +649,9 @@
             
             if (!message) return;
             
-            // Add user message and clear input
             addMessage(message, true);
             input.value = '';
             
-            // Disable send button during request
             sendButton.disabled = true;
             sendButton.textContent = 'Sending...';
             
@@ -559,7 +659,8 @@
                 const response = await fetch('/api/chat/message', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
                     },
                     body: JSON.stringify({
                         memberId: currentUser,
@@ -567,7 +668,13 @@
                     })
                 });
                 
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
                 
                 const data = await response.json();
                 addMessage(data.aiResponse?.text || 'Sorry, I could not understand that.', false);
@@ -582,13 +689,24 @@
             }
         }
         
-        // Event listeners - Wait for DOM to be ready
+        // Event listeners
         document.addEventListener('DOMContentLoaded', function() {
+            // Check for existing session first
+            checkExistingSession();
+            
             // Login event listeners
             document.getElementById('loginBtn').addEventListener('click', login);
             document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('passwordInput').focus();
+                }
+            });
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') login();
             });
+            
+            // Logout event listener
+            document.getElementById('logoutBtn').addEventListener('click', logout);
             
             // Schedule button event listeners
             document.getElementById('todayBtn').addEventListener('click', () => showSchedule('today'));
