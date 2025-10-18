@@ -98,8 +98,8 @@ function createCsvDataSource({ dataDir }) {
   const setlists = parseCsv(safeRead(path.join(dataDir, 'setlists.csv')));
   const flights = parseCsv(safeRead(path.join(dataDir, 'travel_flights.csv')));
   const airports = parseCsv(safeRead(path.join(dataDir, "airports.csv")));  const hotels = parseCsv(safeRead(path.join(dataDir, 'travel_hotels.csv')));
-  const events = parseCsv(safeRead(path.join(dataDir, 'events.csv')));
-  const ground = parseCsv(safeRead(path.join(dataDir, 'ground_transport.csv')));  const soundcheck = parseCsv(safeRead(path.join(dataDir, 'soundcheck_schedule.csv')));
+  const ground = parseCsv(safeRead(path.join(dataDir, 'ground_transport.csv')));
+  const soundcheck = parseCsv(safeRead(path.join(dataDir, 'soundcheck_schedule.csv')));
   const prodNotes = parseCsv(safeRead(path.join(dataDir, 'production_notes.csv')));
   const merchSales = parseCsv(safeRead(path.join(dataDir, 'merch_sales.csv')));
   const venueById = indexBy(venues, 'venue_id');
@@ -144,9 +144,6 @@ function createCsvDataSource({ dataDir }) {
   }
 
   return {
-    async getCities() {
-      return [...new Set(shows.map(s => s.city).filter(city => city))];
-    },
     async getShows(filters = {}) {
       let list = shows.map(normalizeShow);
 
@@ -321,6 +318,8 @@ function createCsvDataSource({ dataDir }) {
     },
 
     async getMerchSales(showId) {
+  console.log('[DEBUG][csv] getMerchSales showId=', showId);
+  console.log('[DEBUG][csv] merchSales size=', Array.isArray(merchSales) ? merchSales.length : -1);
       const sales = merchByShow.get(showId) || [];
       const total = sales.reduce((sum, item) => sum + parseFloat(item.gross_sales || 0), 0);
       return {
@@ -330,13 +329,8 @@ function createCsvDataSource({ dataDir }) {
       };
     },
 
-
-    async getFlights() {
-      return flights;
-    },
     async getFlightsByDestination(city) {
       const cityLower = city.toLowerCase().trim();
-
       const matches = flights.filter(f => 
         f.arrival_city.toLowerCase().includes(cityLower)
       );
@@ -412,7 +406,7 @@ function createCsvDataSource({ dataDir }) {
         
         // Search through all production notes
         for (const row of prodNotes) {
-          if ((row.category === "crew" || row.category === "venue") && row.note) {
+          if (row.category === "crew" && row.note) {
             const match = row.note.match(/^(.+?):\s*(.+?)\s*-\s*contact\s*(.+)$/i);
             
             if (match) {
@@ -544,6 +538,7 @@ function createCsvDataSource({ dataDir }) {
     },
 
     async getAirportByCity(city) {
+      console.log(`[CSV-DATA-SOURCE] Getting airport for city: "${city}"`);
       
       try {
         if (!city) return null;
@@ -573,60 +568,24 @@ function createCsvDataSource({ dataDir }) {
 ,
 
     getFlightsByDate: async function(date) {
-      const flightData = flights;
-      return flightData.filter(f => f.date && f.date.includes(date));
+      const flights = await this.getFlights();
+      return flights.filter(f => f.date && f.date.includes(date));
     },
 
     getFlightByConfirmation: async function(code) {
-      const flightData = flights;
-      return flightData.find(f => 
+      const flights = await this.getFlights();
+      return flights.find(f => 
         f.confirmation && f.confirmation.toLowerCase() === code.toLowerCase()
       );
     },
 
     getNextFlight: async function() {
-      const flightData = flights;
+      const flights = await this.getFlights();
       const now = new Date();
       
       return flights
         .filter(f => f.departure_time && new Date(f.departure_time) > now)
         .sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time))[0];
-    },
-
-    getEvents: async function(date) {
-      if (!date) return events;
-      const targetDate = typeof date === 'string' ? date : date.toISOString().split('T')[0];
-      return events.filter(event => event.date === targetDate);    },
-    getCities: function() {
-      const cities = [...new Set(shows.map(s => s.city).filter(c => c))];
-      return cities;
-    },
-
-    debugProdNotes: function() {
-      console.log("prodNotes length:", prodNotes ? prodNotes.length : "undefined");
-      if (prodNotes && prodNotes.length > 0) {
-        console.log("First row keys:", Object.keys(prodNotes[0]));
-        console.log("First row sample:", prodNotes[0]);
-      }
-      return prodNotes ? prodNotes.length : 0;
-    },
-    getRoles: function() {
-      console.log("Inside getRoles - prodNotes length:", prodNotes ? prodNotes.length : "undefined");
-      const roles = new Set();
-      let processedCount = 0;
-      for (const row of prodNotes) {
-        processedCount++;
-        if ((row.category === "crew" || row.category === "venue") && row.note) {
-          console.log("Processing crew note:", row.note);
-          const match = row.note.match(/^(.+?):\s*(.+?)\s*-\s*contact\s*(.+)$/i);
-          if (match) {
-            console.log("Role found:", match[1].trim());
-            roles.add(match[1].trim());
-          }
-        }
-      }
-      console.log("Processed", processedCount, "rows, found", roles.size, "roles");
-      return Array.from(roles);
     }
   };
 }

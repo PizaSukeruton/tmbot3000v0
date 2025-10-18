@@ -1,0 +1,270 @@
+const { normalize } = require("./normalizer");
+const { lookupExact, lookupInSentence } = require("./termIndex");
+const { cleanName } = require('../utils/textUtils');
+
+class TmIntentMatcher {
+  async matchIntent(content, options = {}, member = {}) {
+    const raw = String(content || "");
+    const q = cleanName(raw).toLowerCase();
+
+    let intent = { intent_type: null, confidence: 0, entities: {} };
+
+    // Check for venue-related queries
+    // Check for venue queries with optional location
+    const venueQueryMatch = q.match(/(?:who is the |who's the |what is the |what's the )?venue (contact|manager|phone|email)(?:\s+(?:for|in|at)\s+(\w+))?/i) ||
+                           q.match(/(?:who is the |who's the |what is the |what's the )?(contact|manager|phone|email).*(?:for|in|at)\s+(\w+)\s+venue/i);
+    if (venueQueryMatch) {
+      const queryType = venueQueryMatch[1].toLowerCase();
+      const location = venueQueryMatch[2] || null;
+      
+      return {
+        intent_type: "venue_query",
+        confidence: 0.95,
+        entities: { 
+          query_type: queryType,
+          location: location
+        }
+      };
+    }
+
+    // Check for "who is" queries
+    const whoIsMatch = q.match(/who\s+is\s+(?:the\s+)?(.+?)\??$/i);
+    if (whoIsMatch) {
+      return {
+        intent_type: "personnel_query",
+        confidence: 0.95,
+        entities: { person_name: whoIsMatch[1].trim() }
+      };
+    }
+
+    // Check for "where is" queries
+    const whereIsMatch = q.match(/where\s+is\s+(?:the\s+)?(.+?)\??$/i);
+    if (whereIsMatch) {
+      return {
+        intent_type: "location_query",
+        confidence: 0.95,
+        entities: { location_name: whereIsMatch[1].trim() }
+      };
+    }
+
+    // Check for individual member notification commands
+    if (/(?:notify|alert|don't notify|enable|disable).*notifications?.*fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
+      const match = q.match(/fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
+      const memberName = match ? match[1] : null;
+      
+      if (memberName) {
+        const enableMatch = /turn on|enable|notify|alert/.test(q);
+        const disableMatch = /turn off|disable|don't notify/.test(q);
+        
+        // Determine event type
+        let eventType = "schedule_change";
+        if (/traffic|delay/i.test(q)) eventType = "traffic_delay";
+        else if (/lobby/i.test(q)) eventType = "lobby_change";
+        else if (/soundcheck/i.test(q)) eventType = "soundcheck_change";
+        else if (/everything|all/i.test(q)) eventType = "all";
+        
+        return {
+          intent_type: "individual_notification_management",
+          confidence: 0.9,
+          entities: {
+            action: enableMatch ? "enable" : "disable",
+            member_name: memberName,
+            event_type: eventType === "all" ? "all" : `notify_on_${eventType}`
+          }
+        };
+      }
+    }
+
+    // Check for member notification management (crew and band)
+    if (/(?:notify|alert|text|message).*(?:crew|band|everyone|all|team|members?).*(?:about|when|if)/i.test(q)) {
+      const enableMatch = /turn on|enable|notify|alert/.test(q);
+      const disableMatch = /turn off|disable|don't notify/.test(q);
+      
+      // Determine member type
+      let memberType = "all";
+      if (/band/i.test(q)) memberType = "band";
+      else if (/crew/i.test(q)) memberType = "crew";
+      
+      // Determine event type
+      let eventType = "schedule_change"; // default
+      if (/traffic|delay/i.test(q)) eventType = "traffic_delay";
+      else if (/lobby/i.test(q)) eventType = "lobby_change";
+      else if (/soundcheck/i.test(q)) eventType = "soundcheck_change";
+      else if (/set time|show time/i.test(q)) eventType = "set_time_change";
+      else if (/meet.*greet|m&g/i.test(q)) eventType = "meet_greet";
+      else if (/press|media|interview/i.test(q)) eventType = "press_commitments";
+      else if (/travel|departure|flight|airport/i.test(q)) eventType = "travel_departure";
+      
+      return {
+        intent_type: "member_notification_management",
+        confidence: 0.9,
+        entities: {
+          action: enableMatch ? "enable" : "disable",
+          member_type: memberType,
+          event_type: `notify_on_${eventType}`
+        }
+      };
+    }
+    // Check for settings management queries
+    if (/(?:turn on|turn off|enable|disable|toggle).*(?:traffic|monitoring|auto.?adjust|notification)/i.test(q)) {
+      const enableMatch = /turn on|enable/.test(q);
+      const disableMatch = /turn off|disable/.test(q);
+      return {
+        intent_type: "settings_management",
+        confidence: 0.9,
+        entities: {
+          action: enableMatch ? "enable" : (disableMatch ? "disable" : "toggle"),
+          feature: q.match(/(?:traffic monitoring|auto.?adjust|notification)/i)?.[0]
+        }
+      };
+    }
+
+    // Check for response mode toggle
+    if (/(?:set|switch|toggle|change|use).*(?:response|answer|mode).*(?:basic|expanded|detailed|brief)/i.test(q) ||
+        /(?:basic|expanded|detailed|brief).*(?:mode|answers?|responses?)/i.test(q)) {
+      const mode = q.match(/(?:basic|brief)/i) ? 'basic' : 'expanded';
+      return {
+        intent_type: "response_mode_toggle",
+        confidence: 0.9,
+        entities: {
+          mode: mode
+        }
+      };
+    }
+
+    // Check for individual member status query
+    if (/(?:show|what are|check).*notifications?.*(?:settings?|status)?.*fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i.test(q)) {
+      const match = q.match(/fors+([A-Z][a-z]+(?:s+[A-Z][a-z]+)*)/i);
+      const memberName = match ? match[1] : null;
+      
+      if (memberName) {
+        return {
+          intent_type: "member_notification_status",
+          confidence: 0.9,
+          entities: {
+            member_name: memberName
+          }
+        };
+      }
+    }
+
+    // Check for settings status queries
+    if (/(?:show|what are|check).*(?:settings|preferences|configuration)/i.test(q)) {
+      return {
+        intent_type: "settings_query",
+        confidence: 0.9,
+        entities: {}
+      };
+    }
+
+    // Check for travel time queries
+    if (/(?:how long|travel time|drive time|time to get|get to).*(?:venue|airport|hotel|city|downtown)/i.test(q)) {
+      // Extract location if mentioned
+      // Extract origin and destination
+      let origin = null;
+      let destination = null;
+      let location = null;
+      
+      // Pattern to extract from-to locations
+      const fromToMatch = q.match(/(?:from|at)\s+(\w+)\s+to\s+(.+)$/i);
+      if (fromToMatch) {
+        origin = fromToMatch[1];
+        destination = fromToMatch[2];
+        if (destination && destination.match(/\w+\s+show$/i)) {
+          location = destination.replace(/\s*show$/i, "");
+          destination = "venue";
+        }
+        if (destination && destination.includes("airport")) {
+          const airportMatch = destination.match(/airports+ins+(w+)/i);
+          if (airportMatch) {
+            location = airportMatch[1];
+          }
+          destination = "airport";
+        }
+      } else if (q.includes("airport")) {
+        destination = "airport";
+        origin = "hotel"; // assume from hotel if not specified
+      }
+      
+      // Simple pattern to extract city after common prepositions
+      const locationMatch = q.match(/(?:for|in|at|to)\s+(?:the\s+)?(?:venue\s+)?(?:for|in|at)?\s*(\w+)$/i);
+      if (locationMatch) {
+        location = locationMatch[1];
+      }
+      
+      return {
+        intent_type: "travel_time_query",
+        confidence: 0.9,
+        entities: {
+          query_type: "duration",
+          location: location,
+          destination: destination,
+          origin: origin
+        }
+      };
+    }
+    // Check for location-specific queries
+    const locationSpecificMatch = q.match(/(?:the\s+)?(\w+)\s+show(?:\s+on\s+(.+))?/i);
+    if (locationSpecificMatch && locationSpecificMatch[1].toLowerCase() !== "the") {
+      return {
+        intent_type: "location_specific_query",
+        confidence: 0.9,
+        entities: { 
+          location: locationSpecificMatch[1],
+          date_string: locationSpecificMatch[2] || null
+        }
+      };
+    }
+
+    // Check for term lookups
+    const normQ = normalize(q);
+    let hit = lookupExact(normQ) || lookupInSentence(normQ);
+
+    if (!hit) {
+      const m = q.match(/^(what is|what's|define|meaning of)\s+(.+)$/i);
+      if (m && m[2]) {
+        const cand = normalize(m[2]);
+        hit = lookupExact(cand) || lookupInSentence(cand);
+      }
+    }
+
+    if (hit) {
+      return {
+        intent_type: "term_lookup",
+        confidence: 0.99,
+        entities: { term_id: hit.term_id, term: hit.term || hit.key || null }
+      };
+    }
+
+    // General pattern matching
+    try {
+      if (/schedule|showtime|what time.*show|(^|\s)show(s)?(\s|$)/.test(q)) {
+        intent = { intent_type: 'show_schedule', confidence: 0.95, entities: {} };
+      } else if (/load in|load-out|sound.?check|curfew|setlist/.test(q)) {
+        intent = { intent_type: 'production', confidence: 0.9, entities: {} };
+      } else if (/flight|airport|travel|hotel|check[- ]?in|check[- ]?out/.test(q)) {
+        intent = { intent_type: 'travel', confidence: 0.9, entities: {} };
+      } else if (/merch|merchandise|t[- ]?shirts?|hoodies?|seller|stand/.test(q)) {
+        intent = { intent_type: 'merch', confidence: 0.9, entities: {} };
+      } else if (/budget|costs?|expenses?|financial|accounting|invoice|payment/.test(q)) {
+        intent = { intent_type: 'financial', confidence: 0.9, entities: {} };
+      } else if (/press|media|interview|photographer|photo\s?pass|press commitments?/.test(q)) {
+        intent = { intent_type: 'media', confidence: 0.9, entities: {} };
+      } else if (/^(help|what can i ask|what can you do)/.test(q)) {
+        intent = { intent_type: 'help', confidence: 0.99, entities: {} };
+      }
+    } catch (e) {
+      intent = {
+        intent_type: null,
+        confidence: 0,
+        entities: {},
+        original_query: content,
+        error: String(e?.message || e),
+      };
+    }
+
+    return intent;
+  }
+}
+
+module.exports = new TmIntentMatcher();

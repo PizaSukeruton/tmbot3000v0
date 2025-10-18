@@ -97,9 +97,9 @@ function createCsvDataSource({ dataDir }) {
   const venues = parseCsv(safeRead(path.join(dataDir, 'venues.csv')));
   const setlists = parseCsv(safeRead(path.join(dataDir, 'setlists.csv')));
   const flights = parseCsv(safeRead(path.join(dataDir, 'travel_flights.csv')));
-  const airports = parseCsv(safeRead(path.join(dataDir, "airports.csv")));  const hotels = parseCsv(safeRead(path.join(dataDir, 'travel_hotels.csv')));
-  const events = parseCsv(safeRead(path.join(dataDir, 'events.csv')));
-  const ground = parseCsv(safeRead(path.join(dataDir, 'ground_transport.csv')));  const soundcheck = parseCsv(safeRead(path.join(dataDir, 'soundcheck_schedule.csv')));
+  const hotels = parseCsv(safeRead(path.join(dataDir, 'travel_hotels.csv')));
+  const ground = parseCsv(safeRead(path.join(dataDir, 'ground_transport.csv')));
+  const soundcheck = parseCsv(safeRead(path.join(dataDir, 'soundcheck_schedule.csv')));
   const prodNotes = parseCsv(safeRead(path.join(dataDir, 'production_notes.csv')));
   const merchSales = parseCsv(safeRead(path.join(dataDir, 'merch_sales.csv')));
   const venueById = indexBy(venues, 'venue_id');
@@ -144,9 +144,6 @@ function createCsvDataSource({ dataDir }) {
   }
 
   return {
-    async getCities() {
-      return [...new Set(shows.map(s => s.city).filter(city => city))];
-    },
     async getShows(filters = {}) {
       let list = shows.map(normalizeShow);
 
@@ -185,12 +182,6 @@ function createCsvDataSource({ dataDir }) {
     async getShow(showId) {
       const s = showsById.get(showId);
       return s ? normalizeShow(s) : null;
-    },
-
-
-    async getHotel(showId) {
-      const hotel = hotels.find(h => h.show_id === showId);
-      return hotel || null;
     },
 
     async getVenue(venueId) {
@@ -321,6 +312,8 @@ function createCsvDataSource({ dataDir }) {
     },
 
     async getMerchSales(showId) {
+  console.log('[DEBUG][csv] getMerchSales showId=', showId);
+  console.log('[DEBUG][csv] merchSales size=', Array.isArray(merchSales) ? merchSales.length : -1);
       const sales = merchByShow.get(showId) || [];
       const total = sales.reduce((sum, item) => sum + parseFloat(item.gross_sales || 0), 0);
       return {
@@ -330,13 +323,8 @@ function createCsvDataSource({ dataDir }) {
       };
     },
 
-
-    async getFlights() {
-      return flights;
-    },
     async getFlightsByDestination(city) {
       const cityLower = city.toLowerCase().trim();
-
       const matches = flights.filter(f => 
         f.arrival_city.toLowerCase().includes(cityLower)
       );
@@ -381,254 +369,8 @@ function createCsvDataSource({ dataDir }) {
         return null;
       }
     },
-
-    async checkPersonnelAcrossShows(query) {
-      console.log(`[CSV-DATA-SOURCE] Checking personnel across all shows: "${query}"`);
-      
-      try {
-        const normalizedQuery = query.toLowerCase().trim();
-        const matches = [];
-        
-        // Extract city if present in query
-        let cityFilter = null;
-        let roleQuery = normalizedQuery;
-        
-        // Get unique cities from shows data
-        const cities = [...new Set(shows.map(s => s.city).filter(c => c).map(c => c.toLowerCase()))];
-        
-        // Check if query contains any city
-        for (const city of cities) {
-          if (normalizedQuery.includes(city)) {
-            cityFilter = city;
-            roleQuery = normalizedQuery
-              .replace(city, "")
-              .replace(/\s+for\s+/, "")
-              .replace(/\s+in\s+/, "")
-              .replace(/\s+at\s+/, "")
-              .trim();
-            break;
-          }
-        }
-        
-        // Search through all production notes
-        for (const row of prodNotes) {
-          if ((row.category === "crew" || row.category === "venue") && row.note) {
-            const match = row.note.match(/^(.+?):\s*(.+?)\s*-\s*contact\s*(.+)$/i);
-            
-            if (match) {
-              const [_, role, personName, contact] = match;
-              const normalizedRole = role.toLowerCase().trim();
-              
-              // Check if role matches
-              const isMatch = normalizedRole === roleQuery || 
-                            normalizedRole.includes(roleQuery) ||
-                            roleQuery.includes(normalizedRole);
-              
-              if (isMatch) {
-                // If city filter is specified, check if this is the right show
-                if (cityFilter) {
-                  const show = shows.find(s => s.show_id === row.show_id);
-                  if (show && show.city && show.city.toLowerCase() === cityFilter) {
-                    matches.push({
-                      role: role.trim(),
-                      name: personName.trim(),
-                      contact: contact.trim(),
-                      show_id: row.show_id,
-                      city: show.city,
-                      priority: row.priority
-                    });
-                  }
-                } else {
-                  // No city filter, include all matches
-                  const show = shows.find(s => s.show_id === row.show_id);
-                  matches.push({
-                    role: role.trim(),
-                    name: personName.trim(),
-                    contact: contact.trim(),
-                    show_id: row.show_id,
-                    city: show ? show.city : "Unknown",
-                    priority: row.priority
-                  });
-                }
-              }
-            }
-          }
-        }
-        
-        return matches;
-      } catch (err) {
-        console.error("[CSV-DATA-SOURCE] Error checking personnel across shows:", err);
-        return [];
-      }
-    },
-
-    async getLocationInfo(locationName) {
-      console.log(`[CSV-DATA-SOURCE] Getting location info for: "${locationName}"`);
-      
-      const normalizedQuery = locationName.toLowerCase().trim();
-      
-      try {
-        // First try to find the venue by name
-        for (const venue of venues) {
-          const venueName = (venue.name || '').toLowerCase();
-          if (venueName.includes(normalizedQuery) || normalizedQuery.includes(venueName)) {
-            return {
-              type: 'venue',
-              name: venue.name,
-              address: venue.address_street,
-              city: venue.address_city,
-              state: venue.address_state,
-              country: venue.address_country,
-              phone: venue.phone
-            };
-          }
-        }
-        
-        // Then check for specific facility locations
-        if (venues.length > 0) {
-          const venue = venues[0]; // We only have one venue in the test data
-          
-          if (normalizedQuery.includes('first aid') || normalizedQuery.includes('medical')) {
-            return {
-              type: 'facility',
-              name: 'First Aid Station',
-              location: venue.first_aid_location
-            };
-          }
-          
-          if (normalizedQuery.includes('stage door')) {
-            return {
-              type: 'facility',
-              name: 'Stage Door',
-              location: venue.stage_door
-            };
-          }
-          
-          if (normalizedQuery.includes('production office')) {
-            return {
-              type: 'facility',
-              name: 'Production Office',
-              location: venue.production_office
-            };
-          }
-          
-          if (normalizedQuery.includes('loading dock')) {
-            return {
-              type: 'facility',
-              name: 'Loading Dock',
-              location: venue.loading_dock
-            };
-          }
-          
-          if (normalizedQuery.includes('merch') || normalizedQuery.includes('merchandise')) {
-            return {
-              type: 'facility',
-              name: 'Merch Stand',
-              location: venue.merch_stand_location
-            };
-          }
-        }
-        
-        return null;
-      } catch (err) {
-        console.error('[CSV-DATA-SOURCE] Error getting location info:', err);
-        return null;
-      }
-    },
-
-
-    async getNextShow() {
-
-      // TODO: Implement getNextShow logic
-      return null;
-    },
-
-    async getAirportByCity(city) {
-      
-      try {
-        if (!city) return null;
-        
-        const normalizedCity = city.toLowerCase().trim();
-        const airport = airports.find(a => 
-          a.city && a.city.toLowerCase() === normalizedCity
-        );
-        
-        if (!airport) {
-          console.log(`[CSV-DATA-SOURCE] No airport found for city: ${city}`);
-          return null;
-        }
-        
-        return {
-          name: airport.airport_name,
-          code: airport.airport_code,
-          address: airport.address,
-          terminal_info: airport.terminal_info,
-          city: airport.city
-        };
-      } catch (err) {
-        console.error("[CSV-DATA-SOURCE] Error getting airport:", err);
-        return null;
-      }
-    }
-,
-
-    getFlightsByDate: async function(date) {
-      const flightData = flights;
-      return flightData.filter(f => f.date && f.date.includes(date));
-    },
-
-    getFlightByConfirmation: async function(code) {
-      const flightData = flights;
-      return flightData.find(f => 
-        f.confirmation && f.confirmation.toLowerCase() === code.toLowerCase()
-      );
-    },
-
-    getNextFlight: async function() {
-      const flightData = flights;
-      const now = new Date();
-      
-      return flights
-        .filter(f => f.departure_time && new Date(f.departure_time) > now)
-        .sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time))[0];
-    },
-
-    getEvents: async function(date) {
-      if (!date) return events;
-      const targetDate = typeof date === 'string' ? date : date.toISOString().split('T')[0];
-      return events.filter(event => event.date === targetDate);    },
-    getCities: function() {
-      const cities = [...new Set(shows.map(s => s.city).filter(c => c))];
-      return cities;
-    },
-
-    debugProdNotes: function() {
-      console.log("prodNotes length:", prodNotes ? prodNotes.length : "undefined");
-      if (prodNotes && prodNotes.length > 0) {
-        console.log("First row keys:", Object.keys(prodNotes[0]));
-        console.log("First row sample:", prodNotes[0]);
-      }
-      return prodNotes ? prodNotes.length : 0;
-    },
-    getRoles: function() {
-      console.log("Inside getRoles - prodNotes length:", prodNotes ? prodNotes.length : "undefined");
-      const roles = new Set();
-      let processedCount = 0;
-      for (const row of prodNotes) {
-        processedCount++;
-        if ((row.category === "crew" || row.category === "venue") && row.note) {
-          console.log("Processing crew note:", row.note);
-          const match = row.note.match(/^(.+?):\s*(.+?)\s*-\s*contact\s*(.+)$/i);
-          if (match) {
-            console.log("Role found:", match[1].trim());
-            roles.add(match[1].trim());
-          }
-        }
-      }
-      console.log("Processed", processedCount, "rows, found", roles.size, "roles");
-      return Array.from(roles);
-    }
   };
 }
 
 module.exports = { createCsvDataSource };
+

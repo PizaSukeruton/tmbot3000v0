@@ -11,10 +11,8 @@ const db = { query: (text, params) => __pool.query(text, params) };
 
 // The createCsvDataSource is in the same directory as this file.
 const { createCsvDataSource } = require("./csvDataSource");
-const DATA_DIR = process.env.TM_DATA_DIR || path.resolve(__dirname, "..", "data");
-console.log("[CSV-DIR]", DATA_DIR);
-const prodNotesPath = path.join(DATA_DIR, "production_notes.csv");
-console.log("[CSV-FILE-EXISTS]", require("fs").existsSync(prodNotesPath));const dataSource = createCsvDataSource({ dataDir: DATA_DIR });
+const DATA_DIR = process.env.TM_DATA_DIR || path.join(__dirname, "..", "data");
+const dataSource = createCsvDataSource({ dataDir: DATA_DIR });
 
 // -------- helpers --------
 // This function dynamically gets the term IDs from the database.
@@ -41,7 +39,7 @@ async function getCitiesFromCsv() {
   try {
     const fs = require("fs");
     const file = path.resolve(DATA_DIR, "travel_flights.csv");
-    const showsFile = path.resolve(DATA_DIR, "shows.csv");    if (!fs.existsSync(file)) return [];
+    if (!fs.existsSync(file)) return [];
     
     const txt = fs.readFileSync(file, "utf8");
     const lines = txt.split(/\r?\n/).filter(Boolean);
@@ -58,26 +56,11 @@ async function getCitiesFromCsv() {
     const cities = new Set();
     lines.forEach(line => {
       const parts = line.split(',');
-    const depCity = parts[I.departure_city];
-    const arrCity = parts[I.arrival_city];
-    if (arrCity && !arrCity.match(/^\d{4}-\d{2}-\d{2}T/)) cities.add(arrCity.toLowerCase());    });
+      if (parts[I.departure_city]) cities.add(parts[I.departure_city].toLowerCase());
+      if (parts[I.arrival_city]) cities.add(parts[I.arrival_city].toLowerCase());
+    });
     
-    
-    // Also get cities from shows.csv
-    if (fs.existsSync(showsFile)) {
-      const showsTxt = fs.readFileSync(showsFile, "utf8");
-      const showsLines = showsTxt.split(/\r?\n/).filter(Boolean);
-      if (showsLines.length > 1) {
-        const showsHeader = showsLines.shift();
-        const showsCols = showsHeader.split(",");
-        const cityIdx = showsCols.indexOf("city");
-        showsLines.forEach(line => {
-          const parts = line.split(",");
-          const city = parts[cityIdx];
-          if (city && !city.match(/^\d{4}-\d{2}-\d{2}T/)) cities.add(city.toLowerCase());
-        });
-      }
-    }    return Array.from(cities);
+    return Array.from(cities);
   } catch (error) {
     console.error("Error fetching city data from CSV:", error.message);
     return [];
@@ -106,8 +89,16 @@ function fmtDate(d) {
 }
 
 function lineForShow(s, i) {
-  return `${fmtDate(s.date)} - ${s.venue_name}, ${s.city}`;
+  const bits = [];
+  bits.push(`${i}. ${fmtDate(s.date)}`);
+  const locParts = [s.venue_name, s.city, s.state || s.region, s.country].filter(Boolean);
+  if (locParts.length) bits.push(`    📍 ${locParts.join(", ")}`);
+  if (s.doors_time) bits.push(`    🚪 Doors: ${s.doors_time}${s.timezone ? " " + s.timezone : ""}`);
+  if (s.show_time)  bits.push(`    🎫 Show: ${s.show_time}${s.timezone ? " " + s.timezone : ""}`);
+  if (s.ticket_status) bits.push(`    🎟️ ${s.ticket_status}`);
+  return bits.join("\n");
 }
+
 // -------- engine --------
 class TmAiEngine {
   constructor(pool) {
@@ -481,14 +472,14 @@ class TmAiEngine {
         return { type: "fallback", text: "I'm not sure how to handle that yet." };
       }
 
-      console.log("[DEBUG] About to enter switch, intent_type =", intent.intent_type);
       console.log("[DEBUG] Intent received:", JSON.stringify(intent));      console.log("[DEBUG] Intent received:", JSON.stringify(intent));      switch (intent.intent_type) {
         case "help":
 
         case "response_mode_toggle": {
           const newMode = intent.entities?.mode || 'basic';
+          const session = member.session || {};
           
-          // Update the session that was passed to us
+          // Store the preference in the session
           if (session) {
             session.responseMode = newMode;
           }
@@ -502,6 +493,7 @@ class TmAiEngine {
             text: modeDescription
           };
         }
+
         case "personnel_query": {
           const personName = intent.entities?.person_name;
           if (!personName) {
@@ -509,11 +501,8 @@ class TmAiEngine {
           }
           
           // Check if this role exists in multiple shows
-          // Check if location is specified
-          const location = intent.entities?.location;
-          const allMatches = location ? 
-            await dataSource.checkPersonnelAcrossShows(`${personName} in ${location}`) :
-            await dataSource.checkPersonnelAcrossShows(personName);          
+          const allMatches = await dataSource.checkPersonnelAcrossShows(personName);
+          
           if (allMatches.length === 0) {
             return { type: "personnel", text: `I couldn't find information about ${personName}. You can ask about roles like FOH tech, guitar tech, drum tech, lighting tech, production manager, etc.` };
           }
@@ -522,7 +511,6 @@ class TmAiEngine {
           if (allMatches.length === 1) {
             const person = allMatches[0];
             const responseMode = session?.responseMode || 'basic';
-            console.log("[DEBUG] Session in personnel_query:", session);
             
             if (responseMode === 'expanded') {
               const show = await dataSource.getShows().then(data => 
@@ -538,7 +526,7 @@ class TmAiEngine {
                 }
               }
               
-              if (person.note && person.note.includes('high')) {
+              if (person.note               if (person.note             return { type: "personnel", text: `The ${person.role} is ${person.name} - contact: ${person.contact}.` };            return { type: "personnel", text: `The ${person.role} is ${person.name} - contact: ${person.contact}.` }; person.note.includes('high')) {              if (person.note             return { type: "personnel", text: `The ${person.role} is ${person.name} - contact: ${person.contact}.` };            return { type: "personnel", text: `The ${person.role} is ${person.name} - contact: ${person.contact}.` }; person.note.includes('high')) { person.note.includes('high')) {
                 expandedText += `\n\nNote: This is marked as high priority.`;
               }
               
@@ -562,15 +550,14 @@ class TmAiEngine {
           // Multiple matches but no context - this should trigger Next Step Logic
           return { type: "personnel", text: `I found ${allMatches.length} different ${personName}s across the tour. Which show are you asking about?` };
         }
-        break;
-        
+
         case "venue_query": {
-          console.log("[DEBUG] >>> VENUE_QUERY CASE ENTERED <<<");
           const queryType = intent.entities?.query_type || "contact";
           const queryLocation = intent.entities?.location;
           let context = null;
           
           if (queryLocation) {
+            // Find show for the mentioned location
             const allShows = await dataSource.getShows();
             const locationLower = queryLocation.toLowerCase();
             const matchingShow = allShows.shows.find(show => 
@@ -587,15 +574,13 @@ class TmAiEngine {
               };
             }
           } else {
-            context = intent.context || intent.assumedContext;
-          }
-          
+            context = intent.context          
           if (!context || !context.venue_id) {
             return { type: "fallback", text: "Please specify which venue you're asking about." };
           }
           
           const venue = await dataSource.getVenue(context.venue_id);
-          
+            console.log("[AI] Venue object:", JSON.stringify(venue, null, 2));          
           if (!venue) {
             return { type: "fallback", text: "I couldn't find information for that venue." };
           }
@@ -603,14 +588,13 @@ class TmAiEngine {
           let response = "";
           switch (queryType) {
             case "contact":
-            case "manager":
-              response = `The venue contact for ${venue.name} in ${context.city} is ${venue.contact.name} - ${venue.contact.phone} (${venue.contact.email}).`;
+              response = `The venue contact for ${venue.name} is ${venue.contact.name} - ${venue.contact.phone} (${venue.contact.email}).`;
               break;
             case "phone":
-              response = `The venue phone for ${venue.name} is ${venue.contact.phone}.`;
+              response = `The venue phone for ${venue.name} is ${venue.phone}.`;
               break;
             case "email":
-              response = `The venue email for ${venue.name} is ${venue.contact.email}.`;
+              response = `The venue contact email for ${venue.name} is ${venue.contact.email}.`;
               break;
             default:
               response = `The venue contact for ${venue.name} is ${venue.contact.name} - ${venue.contact.phone}.`;
@@ -618,10 +602,9 @@ class TmAiEngine {
           
           return { type: "venue_info", text: response };
         }
-        
-          break;
+        }
+
         case "travel_time_query": {
-          console.log("[DEBUG] Entering travel_time_query case");
           // Prioritize session context over assumed context
           let context = null;
           // Check if a location was specified in the query
@@ -807,7 +790,7 @@ class TmAiEngine {
 
           const lines = list.map((s, idx) => lineForShow(s, idx + 1));
           const header = `I found ${list.length} ${list.length === 1 ? "show" : "shows"}:\n\n`;
-          return { type: "schedule", text: header + lines.join("\n\n") };
+          return { type: "schedule", text: header + lines.join("\n") };
         }
 
         // Term Lookup now routed through parse -> retrieve -> generate pipeline
@@ -855,63 +838,10 @@ class TmAiEngine {
               if (__picked) {
                 const lbl = ttHit.label || (String(__fieldKey).replace(/_/g,' ').replace(/\b\w/g, m => m.toUpperCase()));
                 const tz  = show.timezone ? ` ${show.timezone}` : '';
-                const responseMode = session?.responseMode || 'basic';
-                
-                if (responseMode === 'expanded' && show) {
-                  // Build base response
-                  let expandedText = `${lbl} for ${city} (${show.venue_name || 'TBA'}) on ${show.date || 'TBA'}: ${show[__picked]}${tz}`;
-                  
-                  // Get related timeline events
-                  const relatedTimes = [];
-                  const timeFields = [
-                    { field: 'load_in_time', label: 'Load-in' },
-                    { field: 'lobby_call_time', label: 'Lobby call' },
-                    { field: 'doors_time', label: 'Doors' },
-                    { field: 'show_time', label: 'Show time' }
-                  ];
-                  
-                  for (const tf of timeFields) {
-                    if (tf.field !== __fieldKey && show[tf.field]) {
-                      relatedTimes.push(`${tf.label}: ${show[tf.field]}`);
-                    }
-                  }
-                  
-                  if (relatedTimes.length > 0) {
-                    expandedText += '\n\nRelated times:';
-                    relatedTimes.forEach(rt => {
-                      expandedText += '\n' + rt;
-                    });
-                  }
-                  
-                  // Add travel time from hotel
-                  try {
-                    const hotel = await dataSource.getHotel(show.show_id);
-                    if (hotel) {
-                      const venue = await dataSource.getVenue(show.venue_id);
-                      if (venue) {
-                        const hotelAddress = hotel.address;
-                        const venueAddress = `${venue.address.street}, ${venue.address.city}, ${venue.address.state}`;
-                        const result = await mapsService.getTravelTime(hotelAddress, venueAddress);
-                        if (result && !result.error) {
-                          const minutes = Math.round((result.durationInTraffic || result.duration).value / 60);
-                          expandedText += `\n\nIn normal traffic conditions, the drive to the venue is ${minutes} minutes.`;
-                        }
-                      }
-                    }
-                  } catch (e) {
-                    console.error("[AI] Could not calculate travel time:", e);
-                  }
-                  
-                  return {
-                    type: 'schedule',
-                    text: expandedText
-                  };
-                } else {
-                  return {
-                    type: 'schedule',
-                    text: `${lbl} for ${city} (${show.venue_name || 'TBA'}) on ${show.date || 'TBA'}: ${show[__picked]}${tz}`
-                  };
-                }
+                return {
+                  type: 'schedule',
+                  text: `${lbl} for ${city} (${show.venue_name || 'TBA'}) on ${show.date || 'TBA'}: ${show[__picked]}${tz}`
+                };
               } else {
                 const lbl = ttHit.label || 'that time';
                 return { type: 'fallback', text: `I couldn't find ${lbl} for ${city} on the next show. If there's a later date or a different city, try that.` };
@@ -1055,127 +985,6 @@ class TmAiEngine {
           }
         }
         
-
-        case "flight_query": {
-  const { flight_number, date, confirmation, query_type, destination } = intent.entities || {};
-
-  // If the user specified a destination, filter for flights to that city
-  if (destination) {
-    const allFlights = await dataSource.getFlights();
-    const flightsToDest = allFlights.filter(f => 
-      f.arrival_city && f.arrival_city.toLowerCase() === destination.toLowerCase()
-    );
-    
-    const now = new Date();
-    const nextFlightToDest = flightsToDest
-      .filter(f => new Date(f.departure_time) > now)
-      .sort((a, b) => new Date(a.departure_time) - new Date(b.departure_time))[0];
-    
-    if (nextFlightToDest) {
-      const depTime = new Date(nextFlightToDest.departure_time);
-      const arrTime = new Date(nextFlightToDest.arrival_time);
-      
-      let response = `Your next flight to ${destination} is ${nextFlightToDest.airline} ${nextFlightToDest.flight_number} from ${nextFlightToDest.departure_city} to ${nextFlightToDest.arrival_city}.\n`;
-      response += `Departure: ${depTime.toLocaleString()} ${nextFlightToDest.departure_timezone}\n`;
-      response += `Arrival: ${arrTime.toLocaleString()} ${nextFlightToDest.arrival_timezone}\n`;
-      response += `Confirmation: ${nextFlightToDest.confirmation}`;
-      
-      return { type: "flight_info", text: response };
-    } else {
-      return { type: "flight_info", text: `No upcoming flights to ${destination} found.` };
-    }
-  }          
-          try {
-            // Check if looking for next flight
-            if (!flight_number && !confirmation) {
-              const nextFlight = await dataSource.getNextFlight();
-              if (nextFlight) {
-                const depTime = new Date(nextFlight.departure_time);
-                const arrTime = new Date(nextFlight.arrival_time);
-                
-                let response = `Your next flight is ${nextFlight.airline} ${nextFlight.flight_number} from ${nextFlight.departure_city} to ${nextFlight.arrival_city}.\n`;
-                response += `Departure: ${depTime.toLocaleString()} ${nextFlight.departure_timezone}\n`;
-                response += `Arrival: ${arrTime.toLocaleString()} ${nextFlight.arrival_timezone}\n`;
-                response += `Confirmation: ${nextFlight.confirmation}`;
-                
-                // Check flight status if requested
-                if (query_type === 'status') {
-                  const flightService = require('./tmFlightService');
-                  const status = await flightService.getFlightStatus(nextFlight.flight_number, nextFlight.date);
-                  if (!status.error) {
-                    response += `\n\nStatus: ${status.status}`;
-                    if (status.departure.gate) response += `\nDeparture Gate: ${status.departure.gate}`;
-                    if (status.arrival.gate) response += `\nArrival Gate: ${status.arrival.gate}`;
-                  }
-                }
-                
-                return { type: "flight_info", text: response };
-              }
-              return { type: "flight_info", text: "No upcoming flights found." };
-            }
-            
-            // Look up by confirmation code
-            if (confirmation) {
-              const flight = await dataSource.getFlightByConfirmation(confirmation);
-              if (flight) {
-                const depTime = new Date(flight.departure_time);
-                const arrTime = new Date(flight.arrival_time);
-                
-                let response = `Flight ${flight.airline} ${flight.flight_number}:\n`;
-                response += `${flight.departure_city} → ${flight.arrival_city}\n`;
-                response += `Departure: ${depTime.toLocaleString()} ${flight.departure_timezone}\n`;
-                response += `Arrival: ${arrTime.toLocaleString()} ${flight.arrival_timezone}`;
-                
-                return { type: "flight_info", text: response };
-              }
-              return { type: "flight_info", text: `No flight found with confirmation ${confirmation}.` };
-            }
-            
-            // Look up by flight number
-            if (flight_number) {
-              const flights = await dataSource.getFlights();
-              const flight = flights.find(f => f.flight_number === flight_number);
-              
-              if (flight) {
-                const depTime = new Date(flight.departure_time);
-                console.log('[DEBUG] Flight date:', flight.date);
-                const arrTime = new Date(flight.arrival_time);
-                
-                let response = `${flight.airline} ${flight.flight_number}:\n`;
-                response += `${flight.departure_city} → ${flight.arrival_city}\n`;
-                response += `Departure: ${depTime.toLocaleString()} ${flight.departure_timezone}\n`;
-                response += `Arrival: ${arrTime.toLocaleString()} ${flight.arrival_timezone}\n`;
-                response += `Confirmation: ${flight.confirmation}`;
-                
-                // Check real-time status if requested
-                if (query_type === 'status') {
-                  console.log('[DEBUG] Attempting Aviation Stack API call for flight:', flight_number, 'on date:', flight.date);
-                  const flightService = require('./tmFlightService');
-                  const status = await flightService.getFlightStatus(flight_number, flight.date);
-                  console.log('[DEBUG] Aviation Stack response:', status);
-                  
-                  if (!status.error) {
-                    response += `\n\nStatus: ${status.status}`;
-                    if (status.departure.gate) response += `\nDeparture Gate: ${status.departure.gate}`;
-                    if (status.departure.actual) response += `\nActual Departure: ${status.departure.actual}`;
-                    if (status.arrival.gate) response += `\nArrival Gate: ${status.arrival.gate}`;
-                    if (status.arrival.actual) response += `\nActual Arrival: ${status.arrival.actual}`;
-                  } else {
-                    console.log('[DEBUG] Aviation Stack error:', status.error);
-                  }
-                }
-                return { type: "flight_info", text: response };
-              }
-              return { type: "flight_info", text: `No flight found with number ${flight_number}.` };
-            }
-            
-            return { type: "flight_info", text: "Please specify a flight number or confirmation code." };
-            
-          } catch (e) {
-            console.error("[AI] Flight query error:", e);
-            return { type: "error", text: "Unable to retrieve flight information." };
-          }
-        }
         default:
           return { type: "unknown", text: `I don't have a handler for intent: ${intent.intent_type}` };
       }
@@ -1473,4 +1282,3 @@ function __pickTimeField(show, key) {
   for (const k of cand) if (keys.has(k)) return k;
   return null;
 }
-
