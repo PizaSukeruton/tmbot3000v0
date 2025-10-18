@@ -55,8 +55,10 @@ app.get('/health', (req, res) => {
 // Chat endpoint
 app.post('/api/chat/message', async (req, res) => {
   try {
-    const { memberId, content } = req.body;
-
+    const { content } = req.body;
+    
+    // Get memberId from authenticated session
+    const memberId = req.session.userId || req.body.memberId; // fallback for testing
     if (!memberId || !content) {
       return res.status(400).json({ error: 'memberId and content are required' });
     }
