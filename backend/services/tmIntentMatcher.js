@@ -247,49 +247,6 @@ class TmIntentMatcher {
     // Dynamic city-based matching using known cities
     const dataSource = require("./csvDataSource");
     const csvData = dataSource.createCsvDataSource({ dataDir: "./data" });
-    const cities = csvData.getCities();
-    const cityPattern = cities.map(c => c.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
-    const cityRegex = new RegExp(
-      `(?:\\b(?:shows?|concerts?)\\s+(?:in|at|for)\\s+(?<city>${cityPattern}))|` +
-      `(?:(?<city>${cityPattern})\\s+(?:shows?|concerts?))|` +
-      `(?:what\\s+(?:shows?|concerts?)(?:\\s+(?:do\\s+we\\s+have|are))?\\s+(?:in|at|for)\\s+(?<city>${cityPattern}))`,
-      "i"
-    );
-    const cityMatch = q.match(cityRegex);
-    if (cityMatch?.groups?.city) {
-      return {
-        intent_type: "location_specific_query",
-        confidence: 0.95,
-        entities: {
-          location: cityMatch.groups.city,
-          date_string: null
-        }
-      };
-    }
-    if (/(?:what|when|which).*flight/i.test(q) ||
-        /flight.*(?:info|information|details|status)/i.test(q) ||
-        /(?:when|what time).*(?:fly|flying|departure)/i.test(q) ||
-        /check.*flight/i.test(q) ||
-        /(?:my|our|next).*flight/i.test(q) ||
-        /confirmation.*(?:code|number)/i.test(q)) {
-      
-      const flightNumberMatch = q.match(/(?:flight|\b)([A-Z]{2}\d{1,4})\b/i);
-      const dateMatch = q.match(/(?:on|for)\s+(.+?)(?:\s|$)/i);
-      const confirmationMatch = q.match(/confirmation.*(?:code|number|\b)([A-Z0-9]{6})\b/i);
-      const destinationMatch = q.match(/(?:to|into)\s+(\w+)/i);      
-      return {
-        intent_type: "flight_query",
-        confidence: 0.95,
-        entities: {
-          flight_number: flightNumberMatch ? flightNumberMatch[1].toUpperCase() : null,
-          date: dateMatch ? dateMatch[1] : null,
-          confirmation: confirmationMatch ? confirmationMatch[1] : null,
-          destination: destinationMatch ? destinationMatch[1] : null,
-          query_type: /status/i.test(q) ? 'status' : 'info'
-        }
-      };
-    }
-
     try {
       if (/list.*shows?|all shows?|show list|schedule|showtime|what time.*show|(^|\s)show(s)?(\s|$)/.test(q)) {
         intent = { intent_type: 'show_schedule', confidence: 0.95, entities: {} };
