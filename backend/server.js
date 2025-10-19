@@ -63,8 +63,19 @@ app.post('/api/chat/message', async (req, res) => {
     const { content } = req.body;
     
     // Get memberId from authenticated session
-    const memberId = req.session.userId || req.body.memberId; // fallback for testing
-    if (!memberId || !content) {
+    const userId = req.session.userId || req.body.memberId; // fallback for testing
+
+    let memberId;
+    if (typeof userId === "number") {
+      const pool = require("./db/pool");
+      const memberQuery = await pool.query("SELECT member_id FROM tour_party WHERE username = (SELECT username FROM users WHERE id = $1)", [userId]);
+      if (memberQuery.rows.length === 0) {
+        return res.status(400).json({ error: "No tour member found for authenticated user" });
+      }
+      memberId = memberQuery.rows[0].member_id;
+    } else {
+      memberId = userId;
+    }    if (!memberId || !content) {
       return res.status(400).json({ error: 'memberId and content are required' });
     }
 
