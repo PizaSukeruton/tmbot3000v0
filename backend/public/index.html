@@ -560,12 +560,7 @@
             localStorage.removeItem('authToken');
             localStorage.removeItem('username');
             
-            
-            // Clear server session
-            fetch(window.location.hostname === 'localhost' ? '/api/auth/logout' : 'https://tmbot3000v0.onrender.com/api/auth/logout', {
-                method: 'POST',
-                credentials: 'include'
-            });            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainScreen').style.display = 'none';
             
             // Clear inputs
