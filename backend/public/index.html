@@ -523,8 +523,8 @@
             errorDiv.style.display = 'none';
             
             try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
+                const loginUrl = window.location.hostname === 'localhost' ? '/api/auth/login' : 'https://tmbot3000v0.onrender.com/api/auth/login'; 
+                const response = await fetch(loginUrl, {                    method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
                     body: JSON.stringify({ username, password })
@@ -655,8 +655,8 @@
             opacity: 1;">Loading schedule...</div>`;
             
             try {
-                const response = await fetch(`/api/schedule/${day}`, {
-                    headers: { 'Authorization': `Bearer ${authToken}` }
+                const scheduleUrl = window.location.hostname === 'localhost' ? `/api/schedule/${day}` : `https://tmbot3000v0.onrender.com/api/schedule/${day}`; 
+                const response = await fetch(scheduleUrl, {                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -714,8 +714,8 @@
             sendButton.textContent = 'Sending...';
             
             try {
-                const response = await fetch('/api/chat/message', {
-                    method: 'POST',
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/chat/message' : 'https://tmbot3000v0.onrender.com/api/chat/message'; 
+                const response = await fetch(apiUrl, {                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },

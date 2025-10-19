@@ -29,8 +29,13 @@ const authRoutes = require('./routes/auth');
 // Create app + processor
 const app = express();
 
-app.use(cors());
-app.use(express.json());
+app.set('trust proxy', 1);
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' ? 'https://tmbot3000v0.onrender.com' : 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Session middleware
