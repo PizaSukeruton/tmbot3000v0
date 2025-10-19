@@ -136,16 +136,28 @@ router.post('/login', async (req, res) => {
     // Generate token
     const token = generateToken(user);
 
-    // Store token in session
-    req.session.token = token;
-    req.session.userId = user.id;
-
-    // Return user info (without password hash)
-    const { password_hash, ...userInfo } = user;
-    res.json({
-      message: 'Login successful',
-      token,
-      user: userInfo
+    // Get member_id from tour_party table
+    const memberQuery = await pool.query("SELECT member_id FROM tour_party WHERE username = $1", [user.username]);    const memberId = memberQuery.rows.length > 0 ? memberQuery.rows[0].member_id : null;
+    req.session.memberId = memberId;        // Clear any old session data and regenerate session ID
+    req.session.regenerate(err => {
+      if (err) {
+        console.error("Session regeneration failed:", err);
+        return res.status(500).json({ error: "Login failed" });
+      }
+      
+      // Store session data
+      req.session.token = token;
+      req.session.userId = user.id;
+      req.session.memberId = memberId;
+      
+      
+      // Return user info (without password hash)
+      const { password_hash, ...userInfo } = user;
+      res.json({
+        message: "Login successful",
+        token,
+        user: userInfo
+      });
     });
 
   } catch (error) {
@@ -408,4 +420,33 @@ router.post('/complete-admin-setup', async (req, res) => {
     console.error('[AUTH] Admin setup completion error:', error);
     res.status(500).send('<h2>Error</h2><p>Failed to create admin account</p>');
   }
+});
+
+// Enhanced logout endpoint per Perplexity recommendations
+router.post('/logout', (req, res) => {
+  const memberId = req.session.memberId;
+
+  // Destroy express-session in PostgreSQL
+  req.session.destroy(err => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.status(500).json({ message: "Logout failed" });
+    }
+
+    // Also clear cookie on the client
+    res.clearCookie('tmbot.sid', {
+      path: '/',
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    // Optional: purge MessageProcessor entry
+    if (memberId) {
+      const processor = require('../services/tmMessageProcessor');
+      processor.destroySession(memberId);
+    }
+
+    return res.json({ message: "Logged out successfully" });
+  });
 });

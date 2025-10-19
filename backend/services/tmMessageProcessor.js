@@ -260,6 +260,14 @@ class TmMessageProcessor {
     return cities.includes(message.toLowerCase());
   }
 
+  
+  // Destroy specific user session - required for logout
+  destroySession(memberId) {
+    if (this.sessions.has(memberId)) {
+      this.sessions.delete(memberId);
+      console.log(`[MESSAGE-PROCESSOR] Session destroyed for memberId ${memberId}`);
+    }
+  }
   cleanupSessions() {
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
     for (const [memberId, session] of this.sessions.entries()) {
