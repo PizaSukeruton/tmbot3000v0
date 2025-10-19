@@ -767,8 +767,14 @@ class TmAiEngine {
             return { type: "location", text: "I need more information. What location are you asking about?" };
           }
           
-          const location = await dataSource.getLocationInfo(locationName);
-          if (!location) {
+          // Check if this facility exists across multiple venues
+          const facilityType = locationName.split(" ")[0]; // e.g. "first"
+          const cityPart = locationName.split(" ").slice(1).join(" "); // e.g. "aid sydney"
+          
+          // If location includes a city, handle it directly
+          const location = intent.entities?.location ?
+            await dataSource.getLocationInfoByCity(facilityType, intent.entities.location) :
+            await dataSource.getLocationInfo(locationName);          if (!location) {
             return { type: "location", text: `I couldn't find location information for ${locationName}. Try asking about specific venues or facilities like stage door, loading dock, first aid, etc.` };
           }
           

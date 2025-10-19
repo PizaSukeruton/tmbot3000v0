@@ -1,4 +1,9 @@
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
+
+// TEST: Check if environment variables are loaded immediately after dotenv
+console.log('[ENV-TEST] GOOGLE_MAPS_API_KEY exists:', !!process.env.GOOGLE_MAPS_API_KEY);
+console.log('[ENV-TEST] GOOGLE_MAPS_API_KEY length:', process.env.GOOGLE_MAPS_API_KEY ? process.env.GOOGLE_MAPS_API_KEY.length : 'undefined');
+
 const fs = require("fs");
 console.log("Node Modules Exists:", fs.existsSync("./node_modules"));
 console.log("Fuse Exists:", fs.existsSync("./node_modules/fuse.js"));

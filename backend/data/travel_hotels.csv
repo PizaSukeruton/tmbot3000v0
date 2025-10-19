@@ -1,5 +1,6 @@
 show_id,date,name,address,check_in_date,check_out_date,confirmation
-#605001,2025-10-24,The Westin Brisbane,222 Margaret Street Brisbane QLD 4000,2025-10-24,2025-10-26,HTL789
-#605002,2025-10-25,The Westin Brisbane,222 Margaret Street Brisbane QLD 4000,2025-10-24,2025-10-26,HTL789
-#605003,2025-10-26,Hilton Adelaide,233 Victoria Square Adelaide SA 5000,2025-10-26,2025-10-28,HTL345
-#605004,2025-10-27,Hilton Adelaide,233 Victoria Square Adelaide SA 5000,2025-10-26,2025-10-28,HTL345
+#605001,2025-10-24,The Westin Brisbane,222 Margaret Street Brisbane QLD 4000,2025-10-23,2025-10-25,HTL789
+#605003,2025-10-26,Hilton Adelaide,233 Victoria Square Adelaide SA 5000,2025-10-25,2025-10-28,HTL345
+#605005,2025-10-29,Crown Towers Melbourne,8 Whiteman Street Southbank VIC 3006,2025-10-28,2025-10-31,HTL567
+#605007,2025-11-01,Shangri-La Hotel Sydney,176 Cumberland Street The Rocks NSW 2000,2025-10-31,2025-11-03,HTL123
+#605009,2025-11-04,Crown Towers Perth,Great Eastern Highway Burswood WA 6100,2025-11-03,2025-11-05,HTL890

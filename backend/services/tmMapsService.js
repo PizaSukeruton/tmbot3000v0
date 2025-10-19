@@ -3,6 +3,7 @@ const axios = require('axios');
 
 class TmMapsService {
   constructor() {
+    console.log('[MAPS] DEBUG - env var value:', process.env.GOOGLE_MAPS_API_KEY);
     this.apiKey = process.env.GOOGLE_MAPS_API_KEY;
     console.log('[MAPS] API Key loaded:', this.apiKey ? 'Yes' : 'No');
     this.baseUrl = 'https://maps.googleapis.com/maps/api';
