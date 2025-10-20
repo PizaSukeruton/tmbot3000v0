@@ -32,7 +32,7 @@ router.get("/tour-members", async (req, res) => {
   try {
     const fs = require("fs").promises;
     const path = require("path");
-    const { parse } = require("csv-parse/sync");
+    const { parse } = require("csv-parse");
     
     const membersFile = path.join(__dirname, "..", "data", "tour_members.csv");
     const fileContent = await fs.readFile(membersFile, "utf-8");
