@@ -1,0 +1,16 @@
+member_id,first_name,last_name,role,department,email,phone,notes
+prod_001,Sarah,Williams,production_manager,production,sarah.williams@tour.com,+61-400-123-001,Production Manager - handles all technical aspects
+foh_001,Mike,Thompson,foh_tech,production,mike.thompson@tour.com,+61-400-123-002,Front of House sound engineer
+guitar_001,Tom,Davis,guitar_tech,production,tom.davis@tour.com,+61-400-123-003,Guitar technician - maintains guitars
+drum_001,Emma,Johnson,drum_tech,production,emma.johnson@tour.com,+61-400-123-004,Drum technician - maintains drum kit
+lighting_001,James,Brown,lighting_tech,production,james.brown@tour.com,+61-400-123-005,Lighting technician
+monitor_001,Lisa,Wilson,monitor_tech,production,lisa.wilson@tour.com,+61-400-123-006,Monitor technician - stage sound
+stage_001,David,Miller,stage_tech,production,david.miller@tour.com,+61-400-123-007,Stage technician
+merch_001,Amy,Taylor,merch_seller,sales,amy.taylor@tour.com,+61-400-123-008,Merchandise seller
+driver_001,Chris,Anderson,driver,transport,chris.anderson@tour.com,+61-400-123-009,Transportation driver
+runner_001,Jordan,White,runner,general,jordan.white@tour.com,+61-400-123-010,General runner for errands
+band_001,Alex,Rodriguez,lead_vocals,band,alex.rodriguez@band.com,+61-400-124-001,Lead vocalist and frontperson
+band_002,Sam,Chen,guitar,band,sam.chen@band.com,+61-400-124-002,Lead guitarist
+band_003,Riley,Murphy,bass,band,riley.murphy@band.com,+61-400-124-003,Bass guitarist
+band_004,Casey,Williams,drums,band,casey.williams@band.com,+61-400-124-004,Drummer
+band_005,Jordan,Lee,keyboards,band,jordan.lee@band.com,+61-400-124-005,Keyboardist and synthesizer

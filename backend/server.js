@@ -59,6 +59,7 @@ app.use(session({
 
 // Auth routes
 app.use('/api/auth', authRoutes);
+app.use("/api/events", require("./routes/events"));
 
 // Health check
 app.get('/health', (req, res) => {

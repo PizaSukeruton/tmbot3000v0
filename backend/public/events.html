@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Event Scheduler - TMBot3000</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #333;
+            border-radius: 4px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .assignment-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+        .assignment-options label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: normal;
+        }
+        .custom-assignment {
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 4px;
+            background: #1a1a1a;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .member-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        button:hover {
+            background: #2563eb;
+        }
+        .events-list {
+            margin-top: 30px;
+        }
+        .event-item {
+            background: #1a1a1a;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Event Scheduler</h1>
+        
+        <h2>Create New Event</h2>
+        <form id="eventForm">
+            <div class="form-group">
+                <label>Description:</label>
+                <input type="text" id="description" required>
+            </div>
+            <div class="form-group">
+                <label>Date:</label>
+                <input type="date" id="date" required>
+            </div>
+            <div class="form-group">
+                <label>Time:</label>
+                <input type="time" id="time" required>
+            </div>
+            <div class="form-group">
+                <label>Location:</label>
+                <input type="text" id="location" required>
+            </div>
+            <div class="form-group">
+                <label>Assign to:</label>
+                <div class="assignment-options">
+                    <label><input type="radio" name="assignType" value="everyone" checked> Everyone</label>
+                    <label><input type="radio" name="assignType" value="crew"> Crew Only</label>
+                    <label><input type="radio" name="assignType" value="artist"> Artist Only</label>
+                    <label><input type="radio" name="assignType" value="custom"> Custom</label>
+                </div>
+                <div id="customAssignment" class="custom-assignment" style="display: none;">
+                    <div id="membersList"></div>
+                </div>
+            </div>
+            <button type="submit">Create Event</button>
+        </form>
+        
+        <div class="events-list">
+            <h2>Existing Events</h2>
+            <div id="eventsList"></div>
+        </div>
+    </div>
+
+    <script>
+        // Handle assignment type changes
+        document.addEventListener("change", function(e) {
+            if (e.target.name === "assignType") {
+                const customDiv = document.getElementById("customAssignment");
+                if (e.target.value === "custom") {
+                    customDiv.style.display = "block";
+                    loadTourMembers();
+                } else {
+                    customDiv.style.display = "none";
+                }
+            }
+        });
+
+        async function loadTourMembers() {
+            try {
+                const response = await fetch("/api/events/tour-members");
+                const data = await response.json();
+                
+                const membersList = document.getElementById("membersList");
+                membersList.innerHTML = "";
+                
+                if (data.members && data.members.length > 0) {
+                    data.members.forEach(member => {
+                        const memberDiv = document.createElement("div");
+                        memberDiv.className = "member-checkbox";
+                        memberDiv.innerHTML = `
+                            <input type="checkbox" id="member_${member.member_id}" value="${member.member_id}">
+                            <label for="member_${member.member_id}">${member.first_name} ${member.last_name} (${member.role})</label>
+                        `;
+                        membersList.appendChild(memberDiv);
+                    });
+                }
+            } catch (error) {
+                console.error("Error loading tour members:", error);
+            }
+        }
+
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Get basic event data
+            const eventData = {
+                description: document.getElementById('description').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                location: document.getElementById('location').value
+            };
+
+            // Get assignment data
+            const assignType = document.querySelector('input[name="assignType"]:checked').value;
+            
+            if (assignType === "custom") {
+                const selectedMembers = [];
+                document.querySelectorAll('#membersList input[type="checkbox"]:checked').forEach(checkbox => {
+                    selectedMembers.push(checkbox.value);
+                });
+                eventData.assigned_members = selectedMembers;
+            } else {
+                eventData.assignment_type = assignType;
+            }
+            
+            try {
+                const response = await fetch('/api/events', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(eventData)
+                });
+                
+                if (response.ok) {
+                    alert('Event created successfully!');
+                    document.getElementById('eventForm').reset();
+                    document.getElementById('customAssignment').style.display = 'none';
+                    loadEvents();
+                } else {
+                    alert('Error creating event');
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+        
+        async function loadEvents() {
+            try {
+                const response = await fetch('/api/events');
+                const data = await response.json();
+                
+                const eventsList = document.getElementById('eventsList');
+                eventsList.innerHTML = '';
+                
+                if (data.events && data.events.length > 0) {
+                    data.events.forEach(event => {
+                        const eventDiv = document.createElement('div');
+                        eventDiv.className = 'event-item';
+                        
+                        let assignmentInfo = '';
+                        if (event.assigned_members) {
+                            const memberCount = event.assigned_members.split(',').length;
+                            assignmentInfo = `<br>Assigned: ${memberCount} members`;
+                        } else if (event.assignment_type) {
+                            assignmentInfo = `<br>Assigned: ${event.assignment_type}`;
+                        }
+                        
+                        eventDiv.innerHTML = `
+                            <strong>${event.description}</strong><br>
+                            Date: ${event.date}<br>
+                            Time: ${event.time}<br>
+                            Location: ${event.location}${assignmentInfo}
+                        `;
+                        eventsList.appendChild(eventDiv);
+                    });
+                } else {
+                    eventsList.innerHTML = '<p>No events found</p>';
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+            }
+        }
+        
+        // Load events on page load
+        loadEvents();
+    </script>
+</body>
+</html>

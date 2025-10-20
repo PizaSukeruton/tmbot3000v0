@@ -1,0 +1,4 @@
+event_id,date,time,end_time,description,location,show_id,created_by,created_at,notes,assigned_members,event_type,mandatory
+EVT_1760916473516_gcldjcomr,2025-10-25,11:00,,street press interview,phone,,tour_manager,2025-10-19T23:27:53.516Z,,,general,false
+EVT_1760918314409_b7p2rme7e,2025-10-23,10:00,,Production Meeting,Festival Site,,tour_manager,2025-10-19T23:58:34.409Z,,,general,false
+EVT_1760972366719_9qkb7m6v2,2025-10-28,10:00,,Merch Meeting,Teams ,,tour_manager,2025-10-20T14:59:26.719Z,,,general,false

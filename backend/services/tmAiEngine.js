@@ -1182,6 +1182,18 @@ class TmAiEngine {
             return { type: "error", text: "Unable to retrieve flight information." };
           }
         }
+        case "create_event": {
+          const EventConversation = require("../plugins/eventScheduler/eventConversation");
+          const eventConversation = new EventConversation();
+          
+          const sessionId = member.member_id || "default";
+          const result = await eventConversation.handleMessage(sessionId, message, member.member_id);
+          
+          return {
+            type: "event_creation",
+            text: result.message
+          };
+        }
         default:
           return { type: "unknown", text: `I don't have a handler for intent: ${intent.intent_type}` };
       }

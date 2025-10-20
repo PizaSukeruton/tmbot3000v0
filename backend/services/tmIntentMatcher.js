@@ -260,6 +260,8 @@ class TmIntentMatcher {
         intent = { intent_type: 'financial', confidence: 0.9, entities: {} };
       } else if (/press|media|interview|photographer|photo\s?pass|press commitments?/.test(q)) {
         intent = { intent_type: 'media', confidence: 0.9, entities: {} };
+      } else if (/(?:create|add|schedule|new|book)s+(?:event|meeting|appointment)/i.test(q)) {
+        intent = { intent_type: "create_event", confidence: 0.95, entities: {} };
       } else if (/^(help|what can i ask|what can you do)/.test(q)) {
         intent = { intent_type: 'help', confidence: 0.99, entities: {} };
       }
