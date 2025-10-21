@@ -419,6 +419,8 @@
             display: block;
         }
     </style>
+<script src="events.js"></script>
+<script src="test.js"></script>
 </head>
 <body>
     <div class="container">
@@ -531,7 +533,7 @@
                 });                
                 if (response.ok) {
                     const data = await response.json();
-                    authToken = data.token;
+                    authToken = data.token; window.authToken = data.token;
                     currentUser = data.user.username;
                     localStorage.setItem('authToken', authToken);
                     localStorage.setItem('username', currentUser);
@@ -554,7 +556,7 @@
             errorDiv.style.display = 'block';
         }
         function logout() {
-            authToken = null;
+            authToken = null; window.authToken = null;
             currentUser = '';
             localStorage.removeItem('authToken');
             localStorage.removeItem('username');
@@ -601,7 +603,7 @@
             const username = localStorage.getItem('username');
             
             if (token && username) {
-                authToken = token;
+                authToken = token; window.authToken = token;
                 currentUser = username;
                 showMainScreen();
             }
@@ -761,17 +763,17 @@
         // Menu functionality
         function handleMenuAction(action) {
             const actions = {
-                'events': 'Events feature coming soon',
+                'events': showEventManagement,
                 'tour-party': 'Tour Party management coming soon',
                 'check-flights': 'Flight checker coming soon',
                 'check-traffic': 'Traffic checker coming soon',
                 'weather': 'Weather coming soon',
                 'setlists': 'Setlists coming soon',
                 'guest-list': 'Guest List coming soon',
-                'help': 'Help system coming soon'
+                'help': testFunction
             };
             
-            alert(actions[action] || 'Feature coming soon');
+            if (typeof actions[action] === "function") { actions[action](); } else { alert(actions[action] || "Feature coming soon"); }
         }
         
         // Utility functions

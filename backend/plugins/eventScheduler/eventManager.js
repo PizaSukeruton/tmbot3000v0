@@ -113,6 +113,36 @@ class EventManager {
     return null;
   }
 
+  async updateEvent(eventId, updates) {
+    const events = await this.getAllEvents();
+    const eventIndex = events.findIndex(e => e.event_id === eventId);
+    
+    if (eventIndex === -1) {
+      throw new Error(`Event ${eventId} not found`);
+    }
+    
+    if (updates.assigned_members && Array.isArray(updates.assigned_members)) {
+      updates.assigned_members = updates.assigned_members.join(",");
+    }
+    
+    events[eventIndex] = { ...events[eventIndex], ...updates };
+    await this.saveEvents(events);
+    
+    return events[eventIndex];
+  }
+
+  async deleteEvent(eventId) {
+    const events = await this.getAllEvents();
+    const filteredEvents = events.filter(e => e.event_id !== eventId);
+    
+    if (events.length === filteredEvents.length) {
+      throw new Error(`Event ${eventId} not found`);
+    }
+    
+    await this.saveEvents(filteredEvents);
+    return true;
+  }
+
   formatDate(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');

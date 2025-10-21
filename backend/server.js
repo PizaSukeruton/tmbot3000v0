@@ -136,8 +136,13 @@ app.get('/api/schedule/:day', async (req, res) => {
 });
 
 // Serve frontend (if built)
-app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, path) => {
+    if (path.endsWith('.js')) {
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+    }
+  }
+}));
 // root → serve test UI
 app.get('/', (req,res)=> res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
