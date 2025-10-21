@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { parse } = require('csv-parse/sync');
-const { stringify } = require('csv-stringify/sync');
+const { parse } = require('csv-parse');
+const { stringify } = require('csv-stringify');
 
 class EventManager {
   constructor(dataDir) {
