@@ -6,8 +6,6 @@ console.log('[ENV-TEST] GOOGLE_MAPS_API_KEY length:', process.env.GOOGLE_MAPS_AP
 
 const fs = require("fs");
 console.log("Node Modules Exists:", fs.existsSync("./node_modules"));
-console.log("Fuse Exists:", fs.existsSync("./node_modules/fuse.js"));
-console.log("Fuse path check:", require.resolve("fuse.js"));
 const { loadAliasIndex } = require("./services/termIndex");
 // backend/server.js
 const express = require('express');
