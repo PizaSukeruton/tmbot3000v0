@@ -1184,15 +1184,30 @@ class TmAiEngine {
         }
         case "create_event": {
           const EventConversation = require("../plugins/eventScheduler/eventConversation");
-          const eventConversation = new EventConversation();
+          const NaturalLanguageEventCreator = require("../plugins/eventScheduler/naturalLanguageEventCreator");
           
           const sessionId = member.member_id || "default";
-          const result = await eventConversation.handleMessage(sessionId, message, member.member_id);
           
-          return {
-            type: "event_creation",
-            text: result.message
-          };
+          // Check if we have entities from natural language processing
+          if (intent.entities && Object.keys(intent.entities).length > 0) {
+            // Use NaturalLanguageEventCreator for pre-filling
+            const nlCreator = new NaturalLanguageEventCreator();
+            const result = await nlCreator.processNaturalLanguageRequest(intent.entities, sessionId, member.member_id);
+            
+            return {
+              type: "event_creation",
+              text: result.message
+            };
+          } else {
+            // Fall back to step-by-step EventConversation
+            const eventConversation = new EventConversation();
+            const result = await eventConversation.handleMessage(sessionId, message, member.member_id);
+            
+            return {
+              type: "event_creation",
+              text: result.message
+            };
+          }
         }
         default:
           return { type: "unknown", text: `I don't have a handler for intent: ${intent.intent_type}` };

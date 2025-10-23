@@ -67,19 +67,7 @@ class TmIntentMatcher {
         }
       };
     }
-
-    // --- PRIORITIZED CREATE TRIGGER BLOCK ---
-    const createMatch = q.match(/^create\s+(\w+)/i);
-    if (createMatch) {
-      const createType = createMatch[1].toLowerCase();
-      if (createType === "event" || createType === "meeting" || createType === "appointment") {
-        return {
-          intent_type: "create_event",
-          confidence: 0.99,
-          entities: this.extractEventEntities(q)
-        };
-      }
-    }    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
+    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
 
     // Check for "who is" queries
     const whoIsMatch = q.match(/who\s+is\s+(?:the\s+)?(.+?)\??$/i);
@@ -272,8 +260,8 @@ class TmIntentMatcher {
         intent = { intent_type: 'financial', confidence: 0.9, entities: {} };
       } else if (/press|media|interview|photographer|photo\s?pass|press commitments?/.test(q)) {
         intent = { intent_type: 'media', confidence: 0.9, entities: {} };
-      } else if (/(?:create|add|schedule|new|book)\s+(?:event|meeting|appointment)/i.test(q)) {
-        intent = { intent_type: "create_event", confidence: 0.95, entities: this.extractEventEntities(q) };
+      } else if (/(?:create|add|schedule|new|book)s+(?:event|meeting|appointment)/i.test(q)) {
+        intent = { intent_type: "create_event", confidence: 0.95, entities: {} };
       } else if (/^(help|what can i ask|what can you do)/.test(q)) {
         intent = { intent_type: 'help', confidence: 0.99, entities: {} };
       }
@@ -299,7 +287,7 @@ class TmIntentMatcher {
       }
     }
 
-    if (hit && intent.intent_type === null) {
+    if (hit) {
       intent = {
         intent_type: "term_lookup",
         confidence: 0.99,
@@ -329,44 +317,6 @@ class TmIntentMatcher {
 
     return intent;
   }
-
-
-  extractEventEntities(q) {
-    const entities = {};
-    
-    // Extract event description/type
-    const eventMatch = q.match(/(?:create|add|schedule|new|book)\s+(?:a\s+)?([^\s]+(?:\s+[^\s]+)*?)(?:\s+for|\s+at|\s+in|\s+tomorrow|\s+today|$)/i);
-    if (eventMatch) {
-      entities.description = eventMatch[1].trim();
-    }
-    
-    // Extract member assignments
-    const memberMatch = q.match(/for\s+(.*?)(?:\s+at|\s+in|\s+tomorrow|\s+today|$)/i);
-    if (memberMatch) {
-      entities.assigned_members = memberMatch[1].trim();
-    }
-    
-    // Extract time/date
-    const timeMatch = q.match(/(?:at|@)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
-    if (timeMatch) {
-      entities.time = timeMatch[1].trim();
-    }
-    
-    const dateMatch = q.match(/\b(today|tomorrow|\d{4}-\d{2}-\d{2})\b/i);
-    if (dateMatch) {
-      entities.date = dateMatch[1].trim();
-    }
-    
-    // Extract location
-    // Extract location (exclude time patterns)
-    const locationMatch = q.match(/(?:in|at)\s+([a-zA-Z][^\s]*(?:\s+[a-zA-Z][^\s]*)*)(?:\s+at|\s+for|\s+tomorrow|\s+today|$)/i);
-    if (locationMatch) {
-      entities.location = locationMatch[1].trim();
-    }
-    
-    return entities;
-  }
-
 }
 
 module.exports = new TmIntentMatcher();
