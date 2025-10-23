@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TMBot3000</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1a1a1a;
+            color: #ffffff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        
+        /* Login Screen */
+        .login-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        
+        .login-box {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .login-title h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+        }
+        
+        .login-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            color: #ffffff;
+            font-size: 1.125rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .login-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: #3b82f6;
+            color: #ffffff;
+            transition: background 0.2s;
+        }
+        
+        .login-btn:hover {
+            background: #2563eb;
+        }
+        
+        .login-btn:disabled {
+            background: #1a1a1a;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        .login-error {
+            color: #ef4444;
+            margin-top: 1rem;
+            font-size: 0.875rem;
+            display: none;
+        }
+        
+        /* Main Screen */
+        .main-screen {
+            min-height: 100vh;
+            display: none;
+        }
+        
+        .header {
+            padding: 1rem;
+            border-bottom: 1px solid #333;
+            text-align: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #22c55e;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .datetime {
+            font-size: 0.875rem;
+            color: #ffffff;
+            text-shadow: none;
+            opacity: 1;
+            margin-bottom: 0.5rem;
+        }
+        
+        .username {
+            color: #ffffff;
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .logout-btn {
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: #ef4444;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        
+        .logout-btn:hover {
+            background: #dc2626;
+        }
+        
+        /* Button Grid - 2x2 Layout */
+        .button-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            padding: 1rem;
+        }
+        
+        .main-button {
+            padding: 1.5rem 1rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-shadow: none;
+            opacity: 1;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .main-button:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .main-button.active {
+            background: #3b82f6;
+            color: #ffffff;
+        }
+        
+        /* Back Button */
+        .back-button-container {
+            padding: 1rem;
+            text-align: center;
+            display: none;
+        }
+        
+        .back-btn {
+            padding: 0.75rem 2rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+        
+        .back-btn:hover {
+            background: #1a1a1a;
+        }
+        
+        /* Schedule Container */
+        .schedule-container {
+            padding: 1rem;
+            display: none;
+        }
+        
+        .schedule {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            min-height: 200px;
+        }
+        
+        .schedule h2 {
+            margin-bottom: 1rem;
+            color: #ffffff;
+            font-size: 1.5rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
+        }
+        
+        .event-item {
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .event-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: #3b82f6;
+            margin-bottom: 0.5rem;
+        }
+        
+        .event-time,
+        .event-description {
+            color: #ffffff;
+            margin-bottom: 0.25rem;
+        }
+        
+        .no-events {
+            text-align: center;
+            color: #ffffff;
+            padding: 2rem;
+        }
+        
+        /* Chat Container */
+        .chat-container {
+            padding: 1rem;
+            display: none;
+            height: calc(100vh - 140px);
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem 0.5rem 0 0;
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            background: #1a1a1a;
+            border-left: 1px solid #333;
+            border-right: 1px solid #333;
+            padding: 1rem;
+            overflow-y: auto;
+            min-height: 300px;
+        }
+        
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            max-width: 80%;
+        }
+        
+        .message.user {
+            background: #3b82f6;
+            margin-left: auto;
+        }
+        
+        .message.bot {
+            background: #1a1a1a;
+        }
+        
+        .chat-input-container {
+            display: flex;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0 0 0.5rem 0.5rem;
+            padding: 1rem;
+            gap: 0.5rem;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 0.75rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+        }
+        
+        .chat-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .send-button {
+            padding: 0.75rem 1.5rem;
+            background: #3b82f6;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .send-button:hover {
+            background: #2563eb;
+        }
+        
+        .send-button:disabled {
+            background: #1a1a1a;
+            color: #666;
+            cursor: not-allowed;
+        }
+        
+        /* Menu Interface */
+        .menu-container {
+            padding: 1rem;
+            display: none;
+        }
+        
+        .menu-header {
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            border-bottom: 1px solid #333;
+        }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            background: #1a1a1a;
+            padding: 1rem;
+            border-radius: 0 0 0.5rem 0.5rem;
+        }
+        
+        .menu-option {
+            padding: 1rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .menu-option:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        /* Event Management Styles */
+        .events-list {
+            margin: 1rem 0;
+        }
+
+        .event-list-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-details h3 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+        }
+
+        .event-meta {
+            color: #ffffff;
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .event-actions-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .event-btn {
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .event-btn:hover {
+            background: #2563eb;
+        }
+
+        .event-btn.delete {
+            background: #ef4444;
+        }
+
+        .event-btn.delete:hover {
+            background: #dc2626;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-screen">
+            <div class="login-box">
+                <div class="login-title">
+                    <h1>TMBot3000</h1>
+                </div>
+                <input type="text" id="usernameInput" class="login-input" placeholder="Username" autocomplete="username">
+                <input type="password" id="passwordInput" class="login-input" placeholder="Password" autocomplete="current-password">
+                <button id="loginBtn" class="login-btn">Login</button>
+                <div id="loginError" class="login-error"></div>
+            </div>
+        </div>
+        
+        <!-- Main Screen -->
+        <div id="mainScreen" class="main-screen">
+            <!-- Header -->
+            <div class="header">
+                <div class="user-info">
+                    <div class="status-dot"></div>
+                    <span id="usernameDisplay" class="username"></span>
+                </div>
+                <div id="datetime" class="datetime"></div>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
+            
+            <!-- Main Button Grid -->
+            <div id="buttonGrid" class="button-grid">
+                <button id="todayBtn" class="main-button">Today</button>
+                <button id="tomorrowBtn" class="main-button">Tomorrow</button>
+                <button id="menuBtn" class="main-button">Menu</button>
+                <button id="chatBtn" class="main-button">Chat</button>
+            </div>
+            
+            <!-- Back Button -->
+            <div id="backButtonContainer" class="back-button-container">
+                <button id="backBtn" class="back-btn">← Back</button>
+            </div>
+            
+            <!-- Schedule Container -->
+            <div id="scheduleContainer" class="schedule-container">
+                <div id="schedule" class="schedule">
+                    <!-- Schedule content loaded here -->
+                </div>
+            </div>
+            
+            <!-- Chat Container -->
+            <div id="chatContainer" class="chat-container">
+                <div class="chat-header">
+                    <h3>TMBot Assistant</h3>
+                </div>
+                <div id="chatMessages" class="chat-messages">
+                    <div class="message bot">Hello! How can I help you today?</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
+                    <button id="sendButton" class="send-button">Send</button>
+                </div>
+            </div>
+            
+            <!-- Menu Interface -->
+            <div id="menuContainer" class="menu-container">
+                <div class="menu-header">
+                    <h3>Tour Management Menu</h3>
+                </div>
+                <div class="menu-grid">
+                    <button class="menu-option" data-action="events">Events</button>
+                    <button class="menu-option" data-action="tour-party">Tour Party</button>
+                    <button class="menu-option" data-action="check-flights">Check Flights</button>
+                    <button class="menu-option" data-action="check-traffic">Check Traffic</button>
+                    <button class="menu-option" data-action="weather">Weather</button>
+                    <button class="menu-option" data-action="setlists">Setlists</button>
+                    <button class="menu-option" data-action="guest-list">Guest List</button>
+                    <button class="menu-option" data-action="help">Help</button>
+                </div>
+            </div>
+
+            <!-- Event Management Container -->
+            <div id="eventManagementContainer" class="schedule-container">
+                <div class="schedule">
+                    <h2>Event Management</h2>
+                    <div id="eventsList" class="events-list">
+                        <!-- Events will be loaded here -->
+                    </div>
+                    <div class="event-actions">
+                        <button id="createEventBtn" class="menu-option" data-action="create-event">Create New Event</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentUser = '';
+        let currentView = 'main';
+        let authToken = null;
+        let userLocation = "";        
+        // Login functionality
+        async function login() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value;
+            const loginBtn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            if (!username || !password) {
+                showLoginError('Please enter both username and password');
+                return;
+            }
+            
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Logging in...';
+            errorDiv.style.display = 'none';
+            
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/auth/login' : 'https://tmbot3000v0.onrender.com/api/auth/login'; 
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Login failed');
+                }
+                
+                const data = await response.json();
+                authToken = data.token;
+                currentUser = data.user?.username || username;
+                
+                document.getElementById('usernameDisplay').textContent = currentUser;
+                showMainScreen();
+                
+            } catch (error) {
+                showLoginError(error.message);
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Login';
+            }
+        }
+        
+        function showLoginError(message) {
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        async function logout() {
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/auth/logout' : 'https://tmbot3000v0.onrender.com/api/auth/logout'; 
+                await fetch(apiUrl, {
+                    method: 'POST',
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.log('Logout error:', error);
+            }
+            
+            authToken = null;
+            currentUser = '';
+            showLoginScreen();
+        }
+        
+        async function checkExistingSession() {
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/auth/verify' : 'https://tmbot3000v0.onrender.com/api/auth/verify'; 
+                const response = await fetch(apiUrl, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUser = data.user?.username || 'User';
+                    document.getElementById('usernameDisplay').textContent = currentUser;
+                    showMainScreen();
+                }
+            } catch (error) {
+                console.log('Session check failed:', error);
+            }
+        }
+        
+        // Screen management
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainScreen').style.display = 'none';
+            document.getElementById('usernameInput').focus();
+        }
+        
+        function showMainScreen() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'block';
+            showMainView();
+        }
+        
+        function showMainView() {
+            currentView = 'main';
+            hideAllContainers();
+            document.getElementById('buttonGrid').style.display = 'grid';
+            clearActiveButtons();
+        }
+        
+        function showScheduleView(day) {
+            currentView = day;
+            hideAllContainers();
+            document.getElementById('backButtonContainer').style.display = 'block';
+            document.getElementById('scheduleContainer').style.display = 'block';
+            clearActiveButtons();
+            
+            if (day === 'today') {
+                document.getElementById('todayBtn').classList.add('active');
+            } else {
+                document.getElementById('tomorrowBtn').classList.add('active');
+            }
+            
+            loadSchedule(day);
+        }
+        
+        function showChatView() {
+            currentView = 'chat';
+            hideAllContainers();
+            document.getElementById('backButtonContainer').style.display = 'block';
+            document.getElementById('chatContainer').style.display = 'block';
+            clearActiveButtons();
+            document.getElementById('chatBtn').classList.add('active');
+            document.getElementById('chatInput').focus();
+        }
+        
+        function showMenuView() {
+            currentView = 'menu';
+            hideAllContainers();
+            document.getElementById('backButtonContainer').style.display = 'block';
+            document.getElementById('menuContainer').style.display = 'block';
+            clearActiveButtons();
+            document.getElementById('menuBtn').classList.add('active');
+        }
+        
+        function hideAllContainers() {
+            document.getElementById('buttonGrid').style.display = 'none';
+            document.getElementById('backButtonContainer').style.display = 'none';
+            document.getElementById('scheduleContainer').style.display = 'none';
+            document.getElementById('chatContainer').style.display = 'none';
+            document.getElementById('menuContainer').style.display = 'none';
+            document.getElementById('eventManagementContainer').style.display = 'none';
+        }
+        
+        function clearActiveButtons() {
+            document.querySelectorAll('.main-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+        }
+        
+        // Schedule functionality
+        async function loadSchedule(day) {
+            const scheduleDiv = document.getElementById('schedule');
+            const title = day === 'today' ? "Today's Schedule" : "Tomorrow's Schedule";
+            
+            scheduleDiv.innerHTML = `<h2>${title}</h2><div style="text-align: center; color: #ffffff;">Loading schedule...</div>`;
+            
+            try {
+                const scheduleUrl = window.location.hostname === 'localhost' ? `/api/schedule/${day}` : `https://tmbot3000v0.onrender.com/api/schedule/${day}`; 
+                const response = await fetch(scheduleUrl, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                displayScheduleData(data, title);
+                
+            } catch (error) {
+                scheduleDiv.innerHTML = `<h2>${title}</h2><div style="text-align: center; color: #ef4444;">Error loading schedule data</div>`;
+            }
+        }
+        
+        function displayScheduleData(data, title) {
+            const scheduleDiv = document.getElementById('schedule');
+            let html = `<h2>${title}</h2>`;
+            
+            if (data.events && data.events.length > 0) {
+                data.events.forEach(event => {
+                    html += `
+                        <div class="event-item">
+                            <div class="event-title">${event.title}</div>
+                            <div class="event-time">${event.time}</div>
+                            <div class="event-description">${event.description}</div>
+                        </div>
+                    `;
+                });
+            } else {
+                html += '<div class="no-events">No events scheduled</div>';
+            }
+            
+            scheduleDiv.innerHTML = html;
+        }
+        
+        // Chat functionality
+        function addMessage(text, isUser) {
+            const messagesDiv = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            messageDiv.textContent = text;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+        
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const sendButton = document.getElementById('sendButton');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, true);
+            input.value = '';
+            
+            sendButton.disabled = true;
+            sendButton.textContent = 'Sending...';
+            
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/chat/message' : 'https://tmbot3000v0.onrender.com/api/chat/message'; 
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        content: message
+                    })
+                });                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                addMessage(data.aiResponse?.text || 'Sorry, I could not understand that.', false);
+                
+            } catch (error) {
+                addMessage('Sorry, I am having trouble connecting. Please try again.', false);
+            } finally {
+                sendButton.disabled = false;
+                sendButton.textContent = 'Send';
+                input.focus();
+            }
+        }
+        
+        // Menu functionality
+        
+        // Menu functionality
+        function handleMenuAction(action) {
+            const actions = {
+                'events': showEventManagement,
+                'tour-party': 'Tour Party management coming soon',
+                'check-flights': 'Flight checker coming soon',
+                'check-traffic': 'Traffic checker coming soon',
+                'weather': 'Weather coming soon',
+                'setlists': 'Setlists coming soon',
+                'guest-list': 'Guest List coming soon',
+                'create-event': showCreateEventForm,
+                'help': testFunction
+            };
+            
+            if (typeof actions[action] === "function") { 
+                actions[action](); 
+            } else { 
+                alert(actions[action] || "Feature coming soon"); 
+            }
+        }
+        // Event Management Functions
+
+        // Event Management Functions
+        function showEventManagement() {
+            currentView = 'eventManagement';
+            hideAllContainers();
+            document.getElementById('backButtonContainer').style.display = 'block';
+            document.getElementById('eventManagementContainer').style.display = 'block';
+            clearActiveButtons();
+            document.getElementById('menuBtn').classList.add('active');
+            loadEvents();
+        }
+
+
+        function showCreateEventForm() {
+            // Hide event list and show create form
+            document.getElementById('eventsList').style.display = 'none';
+            document.getElementById('createEventBtn').style.display = 'none';
+            
+            // Create form HTML
+            const formHTML = `
+                <div class="create-event-form">
+                    <h3>Create New Event</h3>
+                    <form id="eventForm">
+                        <div class="form-group">
+                            <label>Event Description:</label>
+                            <input type="text" id="eventDescription" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date:</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Time:</label>
+                            <input type="time" id="eventTime">
+                        </div>
+                        <div class="form-group">
+                            <label>End Time:</label>
+                            <input type="time" id="eventEndTime">
+                        </div>
+                        <div class="form-group">
+                            <label>Location:</label>
+                            <input type="text" id="eventLocation">
+                        </div>
+                        <div class="form-group">
+                            <label>Event Type:</label>
+                            <select id="eventType">
+                                <option value="general">General</option>
+                                <option value="meeting">Meeting</option>
+                                <option value="show">Show</option>
+                                <option value="rehearsal">Rehearsal</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Notes:</label>
+                            <textarea id="eventNotes" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="cancelCreateEvent()">Cancel</button>
+                            <button type="button" onclick="submitCreateEvent()">Create Event</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            // Insert form into events list container
+            document.getElementById('eventsList').innerHTML = formHTML;
+            document.getElementById('eventsList').style.display = 'block';
+        }
+
+        function cancelCreateEvent() {
+            document.getElementById('createEventBtn').style.display = 'block';
+            loadEvents();
+        }
+
+        async function submitCreateEvent() {
+            const eventData = {
+                description: document.getElementById('eventDescription').value,
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value,
+                end_time: document.getElementById('eventEndTime').value,
+                location: document.getElementById('eventLocation').value,
+                event_type: document.getElementById('eventType').value,
+                notes: document.getElementById('eventNotes').value,
+                mandatory: 'false'
+            };
+
+            if (!eventData.description || !eventData.date) {
+                alert('Please fill in required fields: Description and Date');
+                return;
+            }
+
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/events' : 'https://tmbot3000v0.onrender.com/api/events';
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                if (response.ok) {
+                    alert('Event created successfully!');
+                    cancelCreateEvent();
+                } else {
+                    alert('Error creating event');
+                }
+            } catch (error) {
+                alert('Error creating event: ' + error.message);
+            }
+        }
+
+
+        async function loadEvents() {
+            const eventsListElement = document.getElementById('eventsList');
+            eventsListElement.innerHTML = '<div style="text-align: center; color: #ffffff;">Loading events...</div>';
+            
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/events' : 'https://tmbot3000v0.onrender.com/api/events';
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const response_data = await response.json();
+                const events = response_data.events || [];
+                displayEvents(events);
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                eventsListElement.innerHTML = '<div class="no-events">Error loading events. Please try again.</div>';
+            }
+        }
+
+        function displayEvents(events) {
+            const eventsListElement = document.getElementById('eventsList');
+            
+            if (!events || events.length === 0) {
+                eventsListElement.innerHTML = '<div class="no-events">No events found</div>';
+                return;
+            }
+            
+            const eventsHTML = events.map(event => `
+                <div class="event-list-item">
+                    <div class="event-details">
+                        <h3>${event.description || event.title || event.name || 'Untitled Event'}</h3>
+                        <div class="event-meta">
+                            ${event.date || 'Date TBD'} • ${event.venue || event.location || 'Venue TBD'}
+                        </div>
+                    </div>
+                    <div class="event-actions-row">
+                        <button class="event-btn" onclick="editEvent('${event.id}')">Edit</button>
+                        <button class="event-btn delete" onclick="deleteEvent('${event.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            eventsListElement.innerHTML = eventsHTML;
+        }
+
+        async function deleteEvent(eventId) {
+            if (!confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+            
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? `/api/events/${eventId}` : `https://tmbot3000v0.onrender.com/api/events/${eventId}`;
+                const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                loadEvents(); // Refresh the list
+                
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                alert('Error deleting event. Please try again.');
+            }
+        }
+        
+        function editEvent(eventId) {
+            alert('Edit functionality coming in next phase');
+        }
+        
+        function updateDateTime() {
+            const now = new Date();
+            const options = {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            let timeString = now.toLocaleDateString('en-AU', options);
+            if (userLocation) {
+                timeString += ` • ${userLocation}`;
+            }
+            document.getElementById('datetime').textContent = timeString;
+        }
+
+        function testFunction() {
+            alert('Test function called - Help feature placeholder');
+        }
+        
+
+        // Event Management Functions
+
+        // Event listeners
+
+        // Global Error Monitoring
+        window.addEventListener('error', function(event) {
+            alert('JavaScript Error: ' + event.message + '\nFile: ' + event.filename + '\nLine: ' + event.lineno);
+            console.error('Global Error:', event);
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            alert('Promise Rejection: ' + event.reason);
+            console.error('Unhandled Promise Rejection:', event);
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            // Login
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('usernameInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') document.getElementById('passwordInput').focus();
+            });
+            document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') login();
+            });
+            
+            // Logout
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // Main buttons
+            document.getElementById('todayBtn').addEventListener('click', () => showScheduleView('today'));
+            document.getElementById('tomorrowBtn').addEventListener('click', () => showScheduleView('tomorrow'));
+            document.getElementById('menuBtn').addEventListener('click', showMenuView);
+            document.getElementById('chatBtn').addEventListener('click', showChatView);
+            
+            // Back button
+            document.getElementById('backBtn').addEventListener('click', showMainView);
+            
+            // Chat
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') sendMessage();
+            });
+            
+            // Menu options
+            document.querySelectorAll('.menu-option').forEach(button => {
+                button.addEventListener('click', function() {
+                    handleMenuAction(this.dataset.action);
+                });
+            });
+            
+            updateDateTime();
+        });
+    </script>
+</body>
+</html>

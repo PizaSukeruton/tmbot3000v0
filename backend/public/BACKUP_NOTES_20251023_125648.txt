@@ -1,0 +1,26 @@
+TMBot3000 Create Event Form Backup Notes
+Date: $(date)
+
+CURRENT STATUS: Working Create Event Form
+- Events button functional 
+- Create Event form displays correctly
+- Basic form fields implemented (description, date, time, location, etc.)
+- Backend POST /api/events tested and working
+- Test events successfully created
+
+NEXT STEP: Add member selection functionality
+- All Touring Party button (all 15 members)
+- All Crew button (production+sales+transport+general = 10 members)  
+- All Artist button (band department = 5 members)
+- Custom selection (individual toggles)
+- Data pulled dynamically from /api/tour-members endpoint
+
+BACKEND MEMBER STRUCTURE:
+- assigned_members field accepts array or comma-separated string
+- 5 departments: production, sales, transport, general, band
+- 15 total members with member_id format: dept_001, band_001, etc.
+
+FILES MODIFIED:
+- Added showCreateEventForm(), cancelCreateEvent(), submitCreateEvent() functions
+- Create event form HTML template
+- Form validation and API submission logic

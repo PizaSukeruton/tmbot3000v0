@@ -13,22 +13,41 @@ class EventManager {
   async getAllEvents(filters = {}) {
     try {
       const fileContent = await fs.readFile(this.eventsFile, 'utf-8');
-      let events = parse(fileContent, {
-        columns: true,
-        skip_empty_lines: true
+      
+      // Parse CSV and return a promise that resolves with the data
+      const events = await new Promise((resolve, reject) => {
+        const results = [];
+        const parser = parse(fileContent, {
+          columns: true,
+          skip_empty_lines: true
+        });
+        
+        parser.on('data', (row) => {
+          results.push(row);
+        });
+        
+        parser.on('end', () => {
+          resolve(results);
+        });
+        
+        parser.on('error', (error) => {
+          reject(error);
+        });
       });
 
+      // Apply filters
+      let filteredEvents = events;
       if (filters.date) {
-        events = events.filter(e => e.date === filters.date);
+        filteredEvents = filteredEvents.filter(e => e.date === filters.date);
       }
       if (filters.member_id) {
-        events = events.filter(e => {
+        filteredEvents = filteredEvents.filter(e => {
           const members = e.assigned_members ? e.assigned_members.split(',') : [];
           return members.includes(filters.member_id);
         });
       }
 
-      return events;
+      return filteredEvents;
     } catch (error) {
       if (error.code === 'ENOENT') {
         return [];

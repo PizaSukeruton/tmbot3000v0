@@ -49,7 +49,6 @@
             padding: 0.75rem 1rem;
             background: #1a1a1a;
             border: 1px solid #333;
-            border: 1px solid #333;
             border-radius: 0.5rem;
             color: #ffffff;
             font-size: 1.125rem;
@@ -65,7 +64,6 @@
         .login-btn {
             width: 100%;
             padding: 0.75rem;
-            border: 1px solid #333;
             border: 1px solid #333;
             border-radius: 0.5rem;
             font-size: 1.125rem;
@@ -164,14 +162,13 @@
         }
         
         .main-button {
-            border: 1px solid #333;            padding: 1.5rem 1rem;
+            padding: 1.5rem 1rem;
             background: #1a1a1a;
             color: #ffffff;
             text-shadow: none;
             opacity: 1;
             font-size: 1.125rem;
             font-weight: 600;
-            border: 1px solid #333;
             border: 1px solid #333;
             border-radius: 0.5rem;
             cursor: pointer;
@@ -200,7 +197,6 @@
             background: #1a1a1a;
             color: #ffffff;
             border: 1px solid #333;
-            border: 1px solid #333;
             border-radius: 0.5rem;
             font-size: 1rem;
             cursor: pointer;
@@ -225,114 +221,98 @@
         }
         
         .schedule h2 {
-            font-size: 1.25rem;
-            margin-bottom: 1.5rem;
-            text-align: center;
+            margin-bottom: 1rem;
+            color: #ffffff;
+            font-size: 1.5rem;
+            border-left: 4px solid #3b82f6;
+            padding-left: 1rem;
         }
         
         .event-item {
-            border-left: 4px solid #3b82f6;
+            background: #1a1a1a;
+            border-bottom: 1px solid #333;
             padding: 1rem;
             margin-bottom: 1rem;
-            background: rgba(59, 130, 246, 0.1);
-            border-radius: 0 0.5rem 0.5rem 0;
         }
         
         .event-title {
             font-weight: 600;
             font-size: 1.125rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .event-time {
             color: #3b82f6;
-            font-weight: 600;
             margin-bottom: 0.5rem;
         }
         
+        .event-time,
         .event-description {
             color: #ffffff;
-            text-shadow: none;
-            opacity: 1;
-            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
         }
         
         .no-events {
             text-align: center;
             color: #ffffff;
-            text-shadow: none;
-            opacity: 1;
-            font-style: italic;
+            padding: 2rem;
         }
         
-        /* Chat Interface */
+        /* Chat Container */
         .chat-container {
             padding: 1rem;
             display: none;
+            height: calc(100vh - 140px);
+            flex-direction: column;
         }
         
         .chat-header {
             background: #1a1a1a;
-            padding: 1rem;
+            border: 1px solid #333;
             border-radius: 0.5rem 0.5rem 0 0;
-            border-bottom: 1px solid #333;
-        }
-        
-        .chat-header h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
+            padding: 1rem;
             text-align: center;
-            margin: 0;
         }
         
         .chat-messages {
+            flex: 1;
             background: #1a1a1a;
-            min-height: 300px;
-            max-height: 400px;
-            overflow-y: auto;
-            padding: 1rem;
             border-left: 1px solid #333;
             border-right: 1px solid #333;
+            padding: 1rem;
+            overflow-y: auto;
+            min-height: 300px;
         }
         
         .message {
-            white-space: pre-line;
             margin-bottom: 1rem;
             padding: 0.75rem;
             border: 1px solid #333;
             border-radius: 0.5rem;
-            max-width: 85%;
+            max-width: 80%;
         }
         
         .message.user {
             background: #3b82f6;
             margin-left: auto;
-            text-align: right;
         }
         
         .message.bot {
             background: #1a1a1a;
-            margin-right: auto;
         }
         
-        .chat-input-wrapper {
+        .chat-input-container {
             display: flex;
-            gap: 0.5rem;
             background: #1a1a1a;
-            padding: 1rem;
-            border-radius: 0 0 0.5rem 0.5rem;
             border: 1px solid #333;
-            border-top: none;
+            border-radius: 0 0 0.5rem 0.5rem;
+            padding: 1rem;
+            gap: 0.5rem;
         }
         
         .chat-input {
             flex: 1;
             padding: 0.75rem;
             background: #1a1a1a;
-            border: 1px solid #333;
+            color: #ffffff;
             border: 1px solid #333;
             border-radius: 0.5rem;
-            color: #ffffff;
             font-size: 1rem;
         }
         
@@ -345,7 +325,6 @@
             padding: 0.75rem 1.5rem;
             background: #3b82f6;
             color: #ffffff;
-            border: 1px solid #333;
             border: 1px solid #333;
             border-radius: 0.5rem;
             font-weight: 600;
@@ -375,22 +354,13 @@
             border-bottom: 1px solid #333;
         }
         
-        .menu-header h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            text-align: center;
-            margin: 0;
-        }
-        
         .menu-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.5rem;
+            gap: 0.75rem;
             background: #1a1a1a;
             padding: 1rem;
             border-radius: 0 0 0.5rem 0.5rem;
-            border: 1px solid #333;
-            border-top: none;
         }
         
         .menu-option {
@@ -398,29 +368,78 @@
             background: #1a1a1a;
             color: #ffffff;
             border: 1px solid #333;
-            border: 1px solid #333;
             border-radius: 0.5rem;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 500;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.2s;
         }
         
         .menu-option:hover {
             background: #1a1a1a;
+            color: #ffffff;
         }
-        
-        /* Utility Classes */
-        .hidden {
-            display: none;
+
+        /* Event Management Styles */
+        .events-list {
+            margin: 1rem 0;
         }
-        
-        .visible {
-            display: block;
+
+        .event-list-item {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .event-details {
+            flex: 1;
+        }
+
+        .event-details h3 {
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+        }
+
+        .event-meta {
+            color: #ffffff;
+            font-size: 0.875rem;
+            opacity: 0.8;
+        }
+
+        .event-actions-row {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .event-btn {
+            padding: 0.5rem 1rem;
+            background: #3b82f6;
+            color: #ffffff;
+            border: 1px solid #333;
+            border-radius: 0.25rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .event-btn:hover {
+            background: #2563eb;
+        }
+
+        .event-btn.delete {
+            background: #ef4444;
+        }
+
+        .event-btn.delete:hover {
+            background: #dc2626;
         }
     </style>
-<script src="events.js"></script>
-<script src="test.js"></script>
 </head>
 <body>
     <div class="container">
@@ -430,28 +449,26 @@
                 <div class="login-title">
                     <h1>TMBot3000</h1>
                 </div>
-                <input type="text" id="usernameInput" class="login-input" placeholder="Username" />
-                <input type="password" id="passwordInput" class="login-input" placeholder="Password" />
+                <input type="text" id="usernameInput" class="login-input" placeholder="Username" autocomplete="username">
+                <input type="password" id="passwordInput" class="login-input" placeholder="Password" autocomplete="current-password">
                 <button id="loginBtn" class="login-btn">Login</button>
-                <div id="loginError" class="login-error">Invalid username or password</div>
+                <div id="loginError" class="login-error"></div>
             </div>
         </div>
         
         <!-- Main Screen -->
         <div id="mainScreen" class="main-screen">
             <!-- Header -->
-            <header class="header">
+            <div class="header">
                 <div class="user-info">
                     <div class="status-dot"></div>
-                    <div>
-                        <div id="datetime" class="datetime"></div>
-                        <div id="username" class="username"></div>
-                        <button id="logoutBtn" class="logout-btn">Logout</button>
-                    </div>
+                    <span id="usernameDisplay" class="username"></span>
                 </div>
-            </header>
+                <div id="datetime" class="datetime"></div>
+                <button id="logoutBtn" class="logout-btn">Logout</button>
+            </div>
             
-            <!-- 2x2 Button Grid -->
+            <!-- Main Button Grid -->
             <div id="buttonGrid" class="button-grid">
                 <button id="todayBtn" class="main-button">Today</button>
                 <button id="tomorrowBtn" class="main-button">Tomorrow</button>
@@ -461,25 +478,26 @@
             
             <!-- Back Button -->
             <div id="backButtonContainer" class="back-button-container">
-                <button id="backBtn" class="back-btn">← Back to Main</button>
+                <button id="backBtn" class="back-btn">← Back</button>
             </div>
             
             <!-- Schedule Container -->
             <div id="scheduleContainer" class="schedule-container">
                 <div id="schedule" class="schedule">
-                    <h2 id="scheduleTitle">Select a Day</h2>
-                    <div class="no-events">Click Today or Tomorrow to view the schedule</div>
+                    <!-- Schedule content loaded here -->
                 </div>
             </div>
             
-            <!-- Chat Interface -->
+            <!-- Chat Container -->
             <div id="chatContainer" class="chat-container">
                 <div class="chat-header">
-                    <h3>Ask TMBot a Question</h3>
+                    <h3>TMBot Assistant</h3>
                 </div>
-                <div id="chatMessages" class="chat-messages"></div>
-                <div class="chat-input-wrapper">
-                    <input type="text" id="chatInput" class="chat-input" placeholder="Type your question..." />
+                <div id="chatMessages" class="chat-messages">
+                    <div class="message bot">Hello! How can I help you today?</div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Type your message...">
                     <button id="sendButton" class="send-button">Send</button>
                 </div>
             </div>
@@ -498,6 +516,19 @@
                     <button class="menu-option" data-action="setlists">Setlists</button>
                     <button class="menu-option" data-action="guest-list">Guest List</button>
                     <button class="menu-option" data-action="help">Help</button>
+                </div>
+            </div>
+
+            <!-- Event Management Container -->
+            <div id="eventManagementContainer" class="schedule-container">
+                <div class="schedule">
+                    <h2>Event Management</h2>
+                    <div id="eventsList" class="events-list">
+                        <!-- Events will be loaded here -->
+                    </div>
+                    <div class="event-actions">
+                        <button id="createEventBtn" class="menu-option" data-action="create-event">Create New Event</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -525,25 +556,33 @@
             errorDiv.style.display = 'none';
             
             try {
-                const loginUrl = window.location.hostname === 'localhost' ? '/api/auth/login' : 'https://tmbot3000v0.onrender.com/api/auth/login'; 
-                const response = await fetch(loginUrl, {                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/auth/login' : 'https://tmbot3000v0.onrender.com/api/auth/login'; 
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
                     credentials: 'include',
-                    body: JSON.stringify({ username, password })
-                });                
-                if (response.ok) {
-                    const data = await response.json();
-                    authToken = data.token; window.authToken = data.token;
-                    currentUser = data.user.username;
-                    localStorage.setItem('authToken', authToken);
-                    localStorage.setItem('username', currentUser);
-                    showMainScreen();
-                } else {
-                    const error = await response.json();
-                    showLoginError(error.message || 'Login failed');
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Login failed');
                 }
+                
+                const data = await response.json();
+                authToken = data.token;
+                currentUser = data.user?.username || username;
+                
+                document.getElementById('usernameDisplay').textContent = currentUser;
+                showMainScreen();
+                
             } catch (error) {
-                showLoginError('Connection error. Please try again.');
+                showLoginError(error.message);
             } finally {
                 loginBtn.disabled = false;
                 loginBtn.textContent = 'Login';
@@ -555,61 +594,55 @@
             errorDiv.textContent = message;
             errorDiv.style.display = 'block';
         }
-        function logout() {
-            authToken = null; window.authToken = null;
-            currentUser = '';
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('username');
-            
-            // Clear server session
-            fetch(
-                window.location.hostname === 'localhost' ? '/api/auth/logout' : 'https://tmbot3000v0.onrender.com/api/auth/logout',
-                {
+        
+        async function logout() {
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/auth/logout' : 'https://tmbot3000v0.onrender.com/api/auth/logout'; 
+                await fetch(apiUrl, {
                     method: 'POST',
                     credentials: 'include'
-                }
-            );
+                });
+            } catch (error) {
+                console.log('Logout error:', error);
+            }
             
-            // Return to login screen
+            authToken = null;
+            currentUser = '';
+            showLoginScreen();
+        }
+        
+        async function checkExistingSession() {
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/auth/verify' : 'https://tmbot3000v0.onrender.com/api/auth/verify'; 
+                const response = await fetch(apiUrl, {
+                    credentials: 'include'
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    authToken = data.token;
+                    currentUser = data.user?.username || 'User';
+                    document.getElementById('usernameDisplay').textContent = currentUser;
+                    showMainScreen();
+                }
+            } catch (error) {
+                console.log('Session check failed:', error);
+            }
+        }
+        
+        // Screen management
+        function showLoginScreen() {
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('mainScreen').style.display = 'none';
-            
-            // Clear all inputs
-            document.getElementById('usernameInput').value = '';
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('loginError').style.display = 'none';
-            
-            // CRITICAL: Clear chat messages from DOM
-            const chatMessages = document.getElementById('chatMessages');
-            if (chatMessages) {
-                chatMessages.innerHTML = '';
-            }
-            
-            // Reset view
-            showMainView();
-        }        
+            document.getElementById('usernameInput').focus();
+        }
+        
         function showMainScreen() {
-            console.log("Setting username to:", currentUser);
-            document.getElementById('username').textContent = currentUser;
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainScreen').style.display = 'block';
-            updateDateTime();
-            setInterval(updateDateTime, 60000);
             showMainView();
         }
         
-        function checkExistingSession() {
-            const token = localStorage.getItem('authToken');
-            const username = localStorage.getItem('username');
-            
-            if (token && username) {
-                authToken = token; window.authToken = token;
-                currentUser = username;
-                showMainScreen();
-            }
-        }
-        
-        // View management
         function showMainView() {
             currentView = 'main';
             hideAllContainers();
@@ -618,12 +651,18 @@
         }
         
         function showScheduleView(day) {
-            currentView = 'schedule';
+            currentView = day;
             hideAllContainers();
             document.getElementById('backButtonContainer').style.display = 'block';
             document.getElementById('scheduleContainer').style.display = 'block';
             clearActiveButtons();
-            document.getElementById(day + 'Btn').classList.add('active');
+            
+            if (day === 'today') {
+                document.getElementById('todayBtn').classList.add('active');
+            } else {
+                document.getElementById('tomorrowBtn').classList.add('active');
+            }
+            
             loadSchedule(day);
         }
         
@@ -652,6 +691,7 @@
             document.getElementById('scheduleContainer').style.display = 'none';
             document.getElementById('chatContainer').style.display = 'none';
             document.getElementById('menuContainer').style.display = 'none';
+            document.getElementById('eventManagementContainer').style.display = 'none';
         }
         
         function clearActiveButtons() {
@@ -664,15 +704,13 @@
         async function loadSchedule(day) {
             const scheduleDiv = document.getElementById('schedule');
             const title = day === 'today' ? "Today's Schedule" : "Tomorrow's Schedule";
-            // Title will be set in innerHTML
             
-            scheduleDiv.innerHTML = `<h2>${title}</h2><div style="text-align: center; color: #ffffff;
-            text-shadow: none;
-            opacity: 1;">Loading schedule...</div>`;
+            scheduleDiv.innerHTML = `<h2>${title}</h2><div style="text-align: center; color: #ffffff;">Loading schedule...</div>`;
             
             try {
                 const scheduleUrl = window.location.hostname === 'localhost' ? `/api/schedule/${day}` : `https://tmbot3000v0.onrender.com/api/schedule/${day}`; 
-                const response = await fetch(scheduleUrl, {                    headers: { 'Authorization': `Bearer ${authToken}` }
+                const response = await fetch(scheduleUrl, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
                 });
                 
                 if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -731,7 +769,8 @@
             
             try {
                 const apiUrl = window.location.hostname === 'localhost' ? '/api/chat/message' : 'https://tmbot3000v0.onrender.com/api/chat/message'; 
-                const response = await fetch(apiUrl, {                    method: 'POST',
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -761,6 +800,8 @@
         }
         
         // Menu functionality
+        
+        // Menu functionality
         function handleMenuAction(action) {
             const actions = {
                 'events': showEventManagement,
@@ -770,34 +811,305 @@
                 'weather': 'Weather coming soon',
                 'setlists': 'Setlists coming soon',
                 'guest-list': 'Guest List coming soon',
+                'create-event': showCreateEventForm,
                 'help': testFunction
             };
             
-            if (typeof actions[action] === "function") { actions[action](); } else { alert(actions[action] || "Feature coming soon"); }
+            if (typeof actions[action] === "function") { 
+                actions[action](); 
+            } else { 
+                alert(actions[action] || "Feature coming soon"); 
+            }
+        }
+        // Event Management Functions
+
+        // Event Management Functions
+        function showEventManagement() {
+            currentView = 'eventManagement';
+            hideAllContainers();
+            document.getElementById('backButtonContainer').style.display = 'block';
+            document.getElementById('eventManagementContainer').style.display = 'block';
+            clearActiveButtons();
+            document.getElementById('menuBtn').classList.add('active');
+            loadEvents();
+        }
+
+
+
+        async function showCreateEventForm() {
+            document.getElementById('eventsList').style.display = 'none';
+            document.getElementById('createEventBtn').style.display = 'none';
+            
+            let tourMembers = [];
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/tour-members' : 'https://tmbot3000v0.onrender.com/api/tour-members';
+                const response = await fetch(apiUrl, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                const data = await response.json();
+                tourMembers = data.members || [];
+            } catch (error) {
+                console.error('Error fetching tour members:', error);
+            }
+            
+            const formHTML = `
+                <div class="create-event-form">
+                    <h3>Create New Event</h3>
+                    <form id="eventForm">
+                        <div class="form-group">
+                            <label>Event Description:</label>
+                            <input type="text" id="eventDescription" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Date:</label>
+                            <input type="date" id="eventDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Start Time:</label>
+                            <input type="time" id="eventTime">
+                        </div>
+                        <div class="form-group">
+                            <label>End Time:</label>
+                            <input type="time" id="eventEndTime">
+                        </div>
+                        <div class="form-group">
+                            <label>Location:</label>
+                            <input type="text" id="eventLocation">
+                        </div>
+                        <div class="form-group">
+                            <label>Event Type:</label>
+                            <input type="text" id="eventType" placeholder="e.g. general, meeting, show, rehearsal">
+                        </div>
+                        <div class="form-group">
+                            <label>Who Must Attend:</label>
+                            <div class="member-selection">
+                                <div class="selection-buttons">
+                                    <button type="button" onclick="selectAllTouringParty()">All Touring Party</button>
+                                    <button type="button" onclick="selectAllCrew()">All Crew</button>
+                                    <button type="button" onclick="selectAllArtist()">All Artist</button>
+                                    <button type="button" onclick="showCustomSelection()">Custom</button>
+                                    <button type="button" onclick="clearAllSelections()">Clear All</button>
+                                </div>
+                                <div id="customSelection" style="display: none;">
+                                    <div id="membersList"></div>
+                                </div>
+                                <div id="selectedMembers" style="margin-top: 10px; color: #3b82f6;">No members selected</div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Notes:</label>
+                            <textarea id="eventNotes" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" onclick="cancelCreateEvent()">Cancel</button>
+                            <button type="button" onclick="submitCreateEvent()">Create Event</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            
+            document.getElementById('eventsList').innerHTML = formHTML;
+            document.getElementById('eventsList').style.display = 'block';
+            
+            window.tourMembers = tourMembers;
+            window.selectedMemberIds = [];
+            generateCustomMembersList();
+        }
+
+        function generateCustomMembersList() {
+            const membersList = document.getElementById('membersList');
+            if (!window.tourMembers || !membersList) return;
+            
+            let membersHTML = '';
+            window.tourMembers.forEach(member => {
+                membersHTML += '<div class="member-checkbox">';
+                membersHTML += '<input type="checkbox" id="member_' + member.member_id + '" value="' + member.member_id + '" onchange="updateSelectedMembers()">';
+                membersHTML += '<label for="member_' + member.member_id + '">' + member.first_name + ' ' + member.last_name + ' (' + member.role + ')</label>';
+                membersHTML += '</div>';
+            });
+            membersList.innerHTML = membersHTML;
+        }
+
+        function selectAllTouringParty() {
+            window.selectedMemberIds = window.tourMembers.map(m => m.member_id);
+            updateMemberCheckboxes();
+            updateSelectedMembersDisplay();
+        }
+
+        function selectAllCrew() {
+            window.selectedMemberIds = window.tourMembers.filter(m => m.department !== 'band').map(m => m.member_id);
+            updateMemberCheckboxes();
+            updateSelectedMembersDisplay();
+        }
+
+        function selectAllArtist() {
+            window.selectedMemberIds = window.tourMembers.filter(m => m.department === 'band').map(m => m.member_id);
+            updateMemberCheckboxes();
+            updateSelectedMembersDisplay();
+        }
+
+        function showCustomSelection() {
+            document.getElementById('customSelection').style.display = 'block';
+        }
+
+        function clearAllSelections() {
+            window.selectedMemberIds = [];
+            updateMemberCheckboxes();
+            updateSelectedMembersDisplay();
+        }
+
+        function updateSelectedMembers() {
+            window.selectedMemberIds = [];
+            document.querySelectorAll('#membersList input[type="checkbox"]:checked').forEach(checkbox => {
+                window.selectedMemberIds.push(checkbox.value);
+            });
+            updateSelectedMembersDisplay();
+        }
+
+        function updateMemberCheckboxes() {
+            document.querySelectorAll('#membersList input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = window.selectedMemberIds.includes(checkbox.value);
+            });
+        }
+
+        function updateSelectedMembersDisplay() {
+            const selectedDiv = document.getElementById('selectedMembers');
+            if (window.selectedMemberIds.length === 0) {
+                selectedDiv.textContent = 'No members selected';
+            } else {
+                const selectedNames = window.selectedMemberIds.map(id => {
+                    const member = window.tourMembers.find(m => m.member_id === id);
+                    return member ? member.first_name + ' ' + member.last_name : id;
+                });
+                selectedDiv.textContent = 'Selected: ' + selectedNames.join(', ');
+            }
+        }
+
+        function cancelCreateEvent() {
+            document.getElementById('createEventBtn').style.display = 'block';
+            loadEvents();
+        }
+
+        async function submitCreateEvent() {
+            const eventData = {
+                description: document.getElementById('eventDescription').value,
+                date: document.getElementById('eventDate').value,
+                time: document.getElementById('eventTime').value,
+                end_time: document.getElementById('eventEndTime').value,
+                location: document.getElementById('eventLocation').value,
+                event_type: document.getElementById('eventType').value,
+                notes: document.getElementById('eventNotes').value,
+                notes: document.getElementById('eventNotes').value,
+                assigned_members: window.selectedMemberIds || [],
+                mandatory: 'false'
+            };
+
+            if (!eventData.description || !eventData.date) {
+                alert('Please fill in required fields: Description and Date');
+                return;
+            }
+
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/events' : 'https://tmbot3000v0.onrender.com/api/events';
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(eventData)
+                });
+
+                if (response.ok) {
+                    alert('Event created successfully!');
+                    cancelCreateEvent();
+                } else {
+                    alert('Error creating event');
+                }
+            } catch (error) {
+                alert('Error creating event: ' + error.message);
+            }
+        }
+
+
+        async function loadEvents() {
+            const eventsListElement = document.getElementById('eventsList');
+            eventsListElement.innerHTML = '<div style="text-align: center; color: #ffffff;">Loading events...</div>';
+            
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? '/api/events' : 'https://tmbot3000v0.onrender.com/api/events';
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const response_data = await response.json();
+                const events = response_data.events || [];
+                displayEvents(events);
+                
+            } catch (error) {
+                console.error('Error loading events:', error);
+                eventsListElement.innerHTML = '<div class="no-events">Error loading events. Please try again.</div>';
+            }
+        }
+
+        function displayEvents(events) {
+            const eventsListElement = document.getElementById('eventsList');
+            
+            if (!events || events.length === 0) {
+                eventsListElement.innerHTML = '<div class="no-events">No events found</div>';
+                return;
+            }
+            
+            const eventsHTML = events.map(event => `
+                <div class="event-list-item">
+                    <div class="event-details">
+                        <h3>${event.description || event.title || event.name || 'Untitled Event'}</h3>
+                        <div class="event-meta">
+                            ${event.date || 'Date TBD'} • ${event.venue || event.location || 'Venue TBD'}
+                        </div>
+                    </div>
+                    <div class="event-actions-row">
+                        <button class="event-btn" onclick="editEvent('${event.id}')">Edit</button>
+                        <button class="event-btn delete" onclick="deleteEvent('${event.id}')">Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            eventsListElement.innerHTML = eventsHTML;
+        }
+
+        async function deleteEvent(eventId) {
+            if (!confirm('Are you sure you want to delete this event?')) {
+                return;
+            }
+            
+            try {
+                const apiUrl = window.location.hostname === 'localhost' ? `/api/events/${eventId}` : `https://tmbot3000v0.onrender.com/api/events/${eventId}`;
+                const response = await fetch(apiUrl, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                loadEvents(); // Refresh the list
+                
+            } catch (error) {
+                console.error('Error deleting event:', error);
+                alert('Error deleting event. Please try again.');
+            }
         }
         
-        // Utility functions
-//         async function getUserLocation() {
-//             try {
-//                 if ("geolocation" in navigator) {
-//                     navigator.geolocation.getCurrentPosition(async (position) => {
-//                         const { latitude, longitude } = position.coords;
-//                         try {
-//                             const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`);
-//                             const data = await response.json();
-//                             userLocation = `${data.city}, ${data.principalSubdivision}`;
-//             updateDateTime();
-//                         } catch (error) {
-//                             console.log("Could not get location name");
-//                         }
-//                     }, (error) => {
-//                         console.log("Location access denied");
-//                     });
-//                 }
-//             } catch (error) {
-//                 console.log("Geolocation not available");
-//             }
-//         }
+        function editEvent(eventId) {
+            alert('Edit functionality coming in next phase');
+        }
+        
         function updateDateTime() {
             const now = new Date();
             const options = {
@@ -814,10 +1126,28 @@
             }
             document.getElementById('datetime').textContent = timeString;
         }
+
+        function testFunction() {
+            alert('Test function called - Help feature placeholder');
+        }
         
+
+        // Event Management Functions
+
         // Event listeners
+
+        // Global Error Monitoring
+        window.addEventListener('error', function(event) {
+            alert('JavaScript Error: ' + event.message + '\nFile: ' + event.filename + '\nLine: ' + event.lineno);
+            console.error('Global Error:', event);
+        });
+
+        window.addEventListener('unhandledrejection', function(event) {
+            alert('Promise Rejection: ' + event.reason);
+            console.error('Unhandled Promise Rejection:', event);
+        });
+
         document.addEventListener('DOMContentLoaded', function() {
-            checkExistingSession();
             
             // Login
             document.getElementById('loginBtn').addEventListener('click', login);

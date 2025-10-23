@@ -1,3 +1,6 @@
 event_id,date,time,end_time,description,location,show_id,created_by,created_at,notes,assigned_members,event_type,mandatory
 EVT_1760972366719_9qkb7m6v2,2025-10-28,10:00,,Updated Merch Meeting,Main Stage Area,,tour_manager,2025-10-20T14:59:26.719Z,,,general,false
 EVT_1760973640928_1o6rpidxy,2025-10-29,10:00,,Phone Interview,Phoners,,tour_manager,2025-10-20T15:20:40.928Z,,band_001,general,false
+EVT_1761183877076_m7s5sns9h,2025-10-25,14:00,15:00,Test Event Creation,Test Location,,tour_manager,2025-10-23T01:44:37.076Z,,,general,false
+EVT_1761187845474_eaa92zynl,2025-11-01,13:50,14:50,Test Event,Sydney Venue,,tour_manager,2025-10-23T02:50:45.474Z,,,meeting,false
+EVT_1761192297087_ovwr3viwj,2025-10-30,14:00,17:00,Full Production Meeting,Practice Space,,tour_manager,2025-10-23T04:04:57.087Z,,"prod_001,foh_001,guitar_001,drum_001,lighting_001,monitor_001,stage_001,merch_001,driver_001,runner_001,band_001,band_002,band_003,band_004,band_005",general,false

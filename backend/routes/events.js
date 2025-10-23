@@ -27,25 +27,6 @@ router.post('/', async (req, res) => {
 });
 
 // GET /api/tour-members - Get tour members
-router.get("/tour-members", async (req, res) => {
-  try {
-    const fs = require("fs");
-    const path = require("path");
-    const { parse } = require("csv-parse");
-    
-    const membersFile = path.join(__dirname, "..", "data", "tour_members.csv");
-    const fileContent = fs.readFileSync(membersFile, "utf-8");
-    const members = parse(fileContent, {
-      columns: true,
-      skip_empty_lines: true
-    });
-    
-    res.json({ members });
-  } catch (error) {
-    console.error("Error getting tour members:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
 
 
 // GET /api/events/:id - Get single event

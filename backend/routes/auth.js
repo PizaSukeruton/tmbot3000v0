@@ -450,3 +450,28 @@ router.post('/logout', (req, res) => {
     return res.json({ message: "Logged out successfully" });
   });
 });
+
+
+// Verify current session
+router.get('/verify', async (req, res) => {
+    try {
+        if (req.session && req.session.userId && req.session.token) {
+            res.json({
+                success: true,
+                token: req.session.token,
+                user: { id: req.session.userId }
+            });
+        } else {
+            res.status(401).json({
+                success: false,
+                message: 'No valid session found'
+            });
+        }
+    } catch (error) {
+        console.error('Session verification error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error during session verification'
+        });
+    }
+});

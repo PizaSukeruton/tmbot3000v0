@@ -58,6 +58,7 @@ app.use(session({
 // Auth routes
 app.use('/api/auth', authRoutes);
 app.use("/api/events", require("./routes/events"));
+app.use('/api/tour-members', require('./routes/tourMembers'));
 
 // Health check
 app.get('/health', (req, res) => {
