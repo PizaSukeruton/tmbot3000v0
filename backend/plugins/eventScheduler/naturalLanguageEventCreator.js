@@ -4,7 +4,7 @@ const EventConversation = require('./eventConversation');
 class NaturalLanguageEventCreator {
   constructor(eventManager) {
     this.eventManager = eventManager || new EventManager();
-    this.eventConversation = new EventConversation(this.eventManager);
+    this.eventConversation = require("./eventConversation");
   }
 
   async processNaturalLanguageRequest(entities, sessionId, userId) {

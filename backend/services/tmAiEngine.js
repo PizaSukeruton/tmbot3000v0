@@ -1200,7 +1200,7 @@ class TmAiEngine {
             };
           } else {
             // Fall back to step-by-step EventConversation
-            const eventConversation = new EventConversation();
+            const eventConversation = require("../plugins/eventScheduler/eventConversation");
             const result = await eventConversation.handleMessage(sessionId, message, member.member_id);
             
             return {
@@ -1208,6 +1208,30 @@ class TmAiEngine {
               text: result.message
             };
           }
+        }
+        case "event_confirmation": {
+          const EventConversation = require("../plugins/eventScheduler/eventConversation");
+          const eventConversation = require("../plugins/eventScheduler/eventConversation");
+          
+          const sessionId = member.member_id || "default";
+          const result = await eventConversation.handleMessage(sessionId, message, member.member_id);
+          
+          return {
+            type: "event_creation",
+            text: result.message
+          };
+        }
+        case "event_confirmation": {
+          const EventConversation = require("../plugins/eventScheduler/eventConversation");
+          const eventConversation = require("../plugins/eventScheduler/eventConversation");
+          
+          const sessionId = member.member_id || "default";
+          const result = await eventConversation.handleMessage(sessionId, message, member.member_id);
+          
+          return {
+            type: "event_creation",
+            text: result.message
+          };
         }
         default:
           return { type: "unknown", text: `I don't have a handler for intent: ${intent.intent_type}` };
@@ -1219,291 +1243,4 @@ class TmAiEngine {
   }
 }
 
-// The export statement is correct, creating and exporting one instance of the engine.
-const engine = new TmAiEngine();
-setImmediate(() => engine.loadTimeTermsFromDb && engine.loadTimeTermsFromDb());
-module.exports = engine;
-
-// -------- Updated flights formatter (timezone-aware) --------
-function formatUpcomingFlights(limit = 10, opts = {}) {
-  const fs = require("fs");
-  const path = require("path");
-  const file = path.resolve(__dirname, "..", "data", "travel_flights.csv");
-  if (!fs.existsSync(file)) return "I found 0 flights.";
-
-  const txt = fs.readFileSync(file, "utf8");
-  const lines = txt.split(/\r?\n/).filter(Boolean);
-  if (lines.length <= 1) return "I found 0 flights.";
-
-  const header = lines.shift();
-  const cols = header.split(",");
-  const idx = (n) => cols.indexOf(n);
-
-  const I = {
-    airline: idx("airline"),
-    flight_number: idx("flight_number"),
-    departure_city: idx("departure_city"),
-    arrival_city: idx("arrival_city"),
-    departure_time: idx("departure_time"),
-    arrival_time: idx("arrival_time"),
-    departure_timezone: idx("departure_timezone"),
-    arrival_timezone: idx("arrival_timezone"),
-    confirmation: idx("confirmation"),
-  };
-
-  function parseCSV(line) {
-    const out = []; let cur = ""; let q = false;
-    for (let i = 0; i < line.length; i++) {
-      const c = line[i];
-      if (c === '"') { if (q && line[i + 1] === '"') { cur += '"'; i++; } else { q = !q; } }
-      else if (c === "," && !q) { out.push(cur); cur = ""; }
-      else { cur += c; }
-    }
-    out.push(cur);
-    while (out.length < cols.length) out.push("");
-    return out;
-  }
-
-  const rows = lines.map(parseCSV).map(a => ({
-    airline: a[I.airline],
-    flight_number: a[I.flight_number],
-    departure_city: a[I.departure_city],
-    arrival_city: a[I.arrival_city],
-    departure_time: a[I.departure_time],
-    arrival_time: a[I.arrival_time],
-    departure_timezone: a[I.departure_timezone] || opts.userTz || "Australia/Sydney",
-    arrival_timezone: a[I.arrival_timezone],
-    confirmation: a[I.confirmation],
-  })).filter(r => r.departure_time);
-
-  function getOffsetMinutesAt(utcMs, tz) {
-    const d = new Date(utcMs);
-    const fmt = new Intl.DateTimeFormat("en-CA", {
-      timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit",
-      hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
-    });
-    const parts = Object.fromEntries(fmt.formatToParts(d).map(p => [p.type, p.value]));
-    const asUTC = Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
-    return (asUTC - utcMs) / 60000;
-  }
-  
-  function zonedLocalToEpochMs(localIso, tz) {
-    const Y = +localIso.slice(0, 4), M = +localIso.slice(5, 7), D = +localIso.slice(8, 10);
-    const h = +(localIso.slice(11, 13) || "0"), m = +(localIso.slice(14, 16) || "0"), s = +(localIso.slice(17, 19) || "0");
-    const base = Date.UTC(Y, M - 1, D, h, m, s);
-    let off = getOffsetMinutesAt(base, tz);
-    const guess = base - off * 60000;
-    off = getOffsetMinutesAt(guess, tz);
-    return base - off * 60000;
-  }
-
-  const nowUtc = Date.now();
-
-  let list = rows.map(r => ({ ...r, depEpoch: zonedLocalToEpochMs(r.departure_time, r.departure_timezone) }));
-
-  if (opts.toCity) {
-    const c = String(opts.toCity).toLowerCase();
-    list = list.filter(r => (r.arrival_city || "").toLowerCase() === c);
-  } else if (opts.fromCity) {
-    const c = String(opts.fromCity).toLowerCase();
-    list = list.filter(r => (r.departure_city || "").toLowerCase() === c);
-  } else if (opts.city) {
-    const c = String(opts.city).toLowerCase();
-    list = list.filter(r =>
-      (r.departure_city || "").toLowerCase() === c ||
-      (r.arrival_city || "").toLowerCase() === c
-    );
-  }
-
-  list = list.filter(r => r.depEpoch >= nowUtc).sort((a, b) => a.depEpoch - b.depEpoch);
-
-  if (opts.todayOnly) {
-    const fmtUser = new Intl.DateTimeFormat("en-CA", {
-      timeZone: opts.userTz || "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit"
-    });
-    const p = Object.fromEntries(fmtUser.formatToParts(new Date()).map(x => [x.type, x.value]));
-    const today = `${p.year}-${p.month}-${p.day}`;
-    list = list.filter(r => {
-      const d = new Date(r.depEpoch);
-      const pu = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
-        timeZone: opts.userTz || "Australia/Sydney", year: "numeric", month: "2-digit", day: "2-digit"
-      }).formatToParts(d).map(x => [x.type, x.value]));
-      const dateInUserTz = `${pu.year}-${pu.month}-${pu.day}`;
-      return dateInUserTz === today;
-    });
-  }
-
-  if (list.length === 0) return "I found 0 flights.";
-  if (opts.nextOnly) list = [list[0]];
-  if (limit && list.length > limit) list = list.slice(0, limit);
-
-  const pad = s => (s || "").trim();
-  function prettyDate(ms, tz) {
-    return new Date(ms).toLocaleDateString("en-AU", { timeZone: tz, weekday: "long", day: "numeric", month: "long", year: "numeric" });
-  }
-  function prettyTime(ms, tz) {
-    return new Date(ms).toLocaleTimeString("en-AU", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false });
-  }
-
-  let out = `I found ${list.length} flight${list.length === 1 ? "" : "s"}:\n`;
-  list.forEach((r, i) => {
-    out += `\n${i + 1}. ${prettyDate(r.depEpoch, r.departure_timezone)}\n`;
-    out += `    ✈️ ${pad(r.airline)} ${pad(r.flight_number)} — ${pad(r.departure_city)} → ${pad(r.arrival_city)}\n`;
-    out += `    🕘 Dep: ${prettyTime(r.depEpoch, r.departure_timezone)} ${pad(r.departure_timezone)}\n`;
-    if (r.arrival_time) out += `    🕒 Arr: ${pad(r.arrival_time.slice(11, 16))} ${pad(r.arrival_timezone)}\n`;
-    if (r.confirmation) out += `    🔖 Conf: ${pad(r.confirmation)}\n`;
-  });
-  return out;
-}
-
-// ==== Appended helper methods (prototype patch; no anchors needed) ====
-// parseCityAndTerm: extract {city, term} from user text (e.g., "what time is soundcheck in brisbane")
-if (typeof TmAiEngine !== "undefined" && TmAiEngine.prototype) {
-  TmAiEngine.prototype.parseCityAndTerm = function(q) {
-    const text = String(q || "").toLowerCase();
-    const cities = (this.cities || []).map(c => String(c).toLowerCase()).filter(Boolean);
-    let foundCity = null;
-    for (const c of cities) {
-      if (text.includes(c)) { foundCity = c; break; }
-    }
-    let term = text
-      .replace(/what\s+time\s+(is|for|do\s+we\s+have|does\s+.*\s+start)\s*/g, "")
-      .replace(/\?+$/,"");
-    if (foundCity) term = term.replace(foundCity, "").trim();
-    term = term.replace(/\b(in|at|the)\b/g, " ").replace(/\s+/g, " ").trim();
-    return { city: foundCity, term };
-  };
-
-  // resolveTermToField: map "soundcheck"/"load in"/"doors"/"on stage" → best show field.
-  // Data-driven: derives candidates from the first show object keys at call time.
-  TmAiEngine.prototype.resolveTermToField = async function(term) {
-    const t = String(term || "").toLowerCase().trim();
-    if (!t) return null;
-
-    // Try to access the shared data source that exposes getShows()
-    const ds = (this && this.dataSource) || (typeof dataSource !== "undefined" ? dataSource : null);
-    let first = null;
-    try {
-      if (ds && ds.getShows) {
-        const { shows = [] } = await ds.getShows({});
-        first = shows && shows[0];
-      }
-    } catch (e) {
-      // swallow; we'll just fall back to alias-only if needed
-    }
-
-    const candidates = new Set();
-    if (first && typeof first === "object") {
-      for (const k of Object.keys(first)) {
-        const nk = String(k).toLowerCase();
-        if (/_time$/.test(nk) || /_(name|venue|location)$/.test(nk) || nk === "venue" || nk === "venue_name") {
-          const base = nk.replace(/_(time|name)$/,"").replace(/_/g, " ").trim();
-          if (base) candidates.add(base);
-          // also include the raw key for *_time preference
-          candidates.add(nk);
-        }
-      }
-    }
-
-    const ALIASES = {
-      "soundcheck": ["soundcheck_time","sound check","sound-check"],
-      "load in": ["load_in_time","loadin","load-in","load in"],
-      "loadout": ["load_out_time","load out","load-out","loadout","load out time"],
-      "on stage": ["show_time","onstage","on-stage","on stage time","onstage time"],
-      "doors": ["doors_time","door time","doors open","doors-open","doors time"],
-      "show": ["show_time","set time","settime","set"],
-      "curfew": ["curfew_time","curfew time"]
-    };
-
-    for (const [k, arr] of Object.entries(ALIASES)) {
-      if (t.includes(k)) for (const a of arr) candidates.add(a);
-    }
-
-    const scored = [];
-    for (const c of candidates) {
-      const cNorm = String(c).toLowerCase();
-      let score = 0;
-      if (cNorm === t) score = 100;
-      else if (cNorm.startsWith(t)) score = 80;
-      else if (t.startsWith(cNorm)) score = 75;
-      else if (cNorm.includes(t) || t.includes(cNorm)) score = 60;
-      if (/_time$/.test(cNorm)) score += 15; // time fields preferred
-      scored.push({ field: c, score });
-    }
-    scored.sort((a,b)=>b.score - a.score);
-    const best = scored[0];
-    if (!best || best.score < 50) return null;
-
-    let f = best.field.replace(/\s+/g, "_");
-    if (!/_time$/.test(f) && /(time|doors|show|curfew|load[_-]?(in|out)|soundcheck|on[_-]?stage)/.test(f)) {
-      if (!/_time$/.test(f)) f = f.replace(/_?(time)?$/, "_time");
-    }
-    return f;
-  };
-}
-
-// Return the next (earliest) show for a given city (case-insensitive).
-// Prototype patch so we don't depend on class location.
-if (typeof TmAiEngine !== "undefined" && TmAiEngine.prototype) {
-  TmAiEngine.prototype.getNextShowByCity = async function(cityLower) {
-    const ds = (this && this.dataSource) || (typeof dataSource !== "undefined" ? dataSource : null);
-    try {
-      const { shows = [] } = ds && ds.getShows ? await ds.getShows({}) : { shows: [] };
-      const target = String(cityLower || "").toLowerCase();
-      const matches = [];
-      for (const s of shows) {
-        const c = String(s.city || s.venue_city || "").toLowerCase();
-        if (c === target) matches.push(s);
-      }
-      
-      // Prefer shows with show_time populated (actual performances)
-      const withShowTime = matches.filter(s => s.show_time);
-      const candidates = withShowTime.length ? withShowTime : matches;
-      
-      // Return earliest date from candidates
-      let best = null;
-      for (const s of candidates) {
-        const when = new Date(s.date || s.show_date || 0);
-        if (!best) { best = s; continue; }
-        const bWhen = new Date(best.date || best.show_date || 0);
-        if (when < bWhen) best = s;
-      }
-      return best;
-    } catch (e) {
-      return null;
-    }
-  };
-}
-
-// Load authoritative time terms from DB view tm_time_terms
-if (typeof TmAiEngine !== "undefined" && TmAiEngine.prototype) {
-  TmAiEngine.prototype.loadTimeTermsFromDb = async function() {
-    try {
-      const sql = 'SELECT term_id, field_key, label FROM tm_time_terms';
-      const res = await db.query(sql);
-      this.timeTermMap = Object.fromEntries(
-        (res.rows || [])
-          .filter(r => r.term_id && r.field_key)
-          .map(r => [String(r.term_id).toLowerCase(), { field: r.field_key, label: r.label }])
-      );
-      console.log(`[TmAiEngine] Loaded ${Object.keys(this.timeTermMap||{}).length} time terms from DB.`);
-    } catch (e) {
-      console.error("[TmAiEngine] Error loading time terms:", e && e.message || e);
-      this.timeTermMap = {};
-    }
-  };
-}
-
-function __pickTimeField(show, key) {
-  if (!show || !key) return null;
-  const keys = new Set(Object.keys(show));
-  const cand = [];
-  cand.push(key);                          // load_in_time
-  cand.push(key.replace(/_time$/, ''));    // load_in
-  cand.push(key.replace(/_/g, ''));        // loadintime
-  cand.push(key.replace(/_time$/, '_at')); // load_in_at
-  cand.push(key.replace('load_in','loadin')); // loadin_time
-  for (const k of cand) if (keys.has(k)) return k;
-  return null;
-}
-
+module.exports = new TmAiEngine();

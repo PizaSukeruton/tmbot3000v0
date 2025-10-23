@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const EventManager = require('../plugins/eventScheduler/eventManager');
+const UnifiedEventReader = require('../plugins/eventScheduler/unifiedEventReader');
 
 const eventManager = new EventManager();
+const unifiedEventReader = new UnifiedEventReader();
 
-// GET /api/events - Get all events
+// GET /api/events - Get all events from all sources
 router.get('/', async (req, res) => {
   try {
-    const events = await eventManager.getAllEvents();
+    const events = await unifiedEventReader.getAllEvents();
     res.json({ events });
   } catch (error) {
     console.error('Error getting events:', error);
@@ -25,9 +27,6 @@ router.post('/', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-// GET /api/tour-members - Get tour members
-
 
 // GET /api/events/:id - Get single event
 router.get("/:id", async (req, res) => {

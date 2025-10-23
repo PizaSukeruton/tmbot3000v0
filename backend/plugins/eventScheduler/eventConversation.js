@@ -159,4 +159,4 @@ class EventConversation {
   }
 }
 
-module.exports = EventConversation;
+module.exports = new EventConversation();

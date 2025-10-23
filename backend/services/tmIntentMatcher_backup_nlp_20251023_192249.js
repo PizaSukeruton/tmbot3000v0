@@ -48,7 +48,7 @@ class TmIntentMatcher {
   async matchIntent(content, options = {}, member = {}) {
     const raw = String(content || "");
     const q = cleanName(raw).toLowerCase();
-    console.log("[INTENT-DEBUG] Starting matchIntent with query:", JSON.stringify(q));
+
     let intent = { intent_type: null, confidence: 0, entities: {} };
 
 
@@ -58,7 +58,6 @@ class TmIntentMatcher {
                            q.match(/venue\s*(contact|manager|phone|email)\s*(?:for|in|at)?\s*(\w+)?/i);
     
     if (venueQueryMatch) {
-    console.log("[INTENT-TRACE] Returning from block: venue_query");
       return {
         intent_type: "venue_query",
         confidence: 0.99,
@@ -68,33 +67,19 @@ class TmIntentMatcher {
         }
       };
     }
-    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
 
     // --- PRIORITIZED CREATE TRIGGER BLOCK ---
     const createMatch = q.match(/^create\s+(\w+)/i);
     if (createMatch) {
       const createType = createMatch[1].toLowerCase();
       if (createType === "event" || createType === "meeting" || createType === "appointment") {
-        console.log("[INTENT-TRACE] Returning from block: create_event");
         return {
           intent_type: "create_event",
           confidence: 0.99,
           entities: this.extractEventEntities(q)
         };
       }
-    }
-
-    // --- CONFIRMATION DETECTION ---
-    console.log("[INTENT-DEBUG] Testing confirm pattern on:", JSON.stringify(q.trim()));
-    if (/^(confirm|yes|cancel)$/i.test(q.trim())) {
-      console.log("[INTENT-DEBUG] Confirm pattern matched!");
-      console.log("[INTENT-TRACE] Returning from block: event_confirmation");
-      return {
-        intent_type: "event_confirmation",
-        confidence: 0.98,
-        entities: {}
-      };
-    }
+    }    // Defensive venue query pattern with flexible phrasing - HIGHEST PRIORITY
 
     // Check for "who is" queries
     const whoIsMatch = q.match(/who\s+is\s+(?:the\s+)?(.+?)\??$/i);
@@ -102,14 +87,12 @@ class TmIntentMatcher {
     // Check for "who is doing" queries
     const whoIsDoingMatch = q.match(/who\s+is\s+doing\s+(?:the\s+)?(.+?)\??$/i);
     if (whoIsDoingMatch) {
-      console.log("[INTENT-TRACE] Returning from block: personnel_query_who_is_doing");
       return {
         intent_type: "personnel_query",
         confidence: 0.95,
         entities: { person_name: TmIntentMatcher.canonicalizeEntity(whoIsDoingMatch[1].trim(), "role") }
       };
     }    if (whoIsMatch) {
-      console.log("[INTENT-TRACE] Returning from block: personnel_query");
       return {
         intent_type: "personnel_query",
         confidence: 0.95,
@@ -120,13 +103,13 @@ class TmIntentMatcher {
     // Check for "where is" queries
     const whereIsMatch = q.match(/where\s+is\s+(?:the\s+)?(.+?)\??$/i);
     if (whereIsMatch) {
-      console.log("[INTENT-TRACE] Returning from block: location_query");
       return {
         intent_type: "location_query",
         confidence: 0.95,
         entities: { location_name: whereIsMatch[1].trim() }
       };
     }
+
     // Check for individual member notification commands
     if (/(?:notify|alert|don't notify|enable|disable).*notifications?.*for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i.test(q)) {
       const match = q.match(/for\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)/i);
@@ -141,7 +124,7 @@ class TmIntentMatcher {
         else if (/lobby/i.test(q)) eventType = "lobby_change";
         else if (/soundcheck/i.test(q)) eventType = "soundcheck_change";
         else if (/everything|all/i.test(q)) eventType = "all";
-        console.log("[INTENT-TRACE] Returning from block: individual_notification");
+        
         return {
           intent_type: "individual_notification_management",
           confidence: 0.9,
@@ -171,7 +154,7 @@ class TmIntentMatcher {
       else if (/meet.*greet|m&g/i.test(q)) eventType = "meet_greet";
       else if (/press|media|interview/i.test(q)) eventType = "press_commitments";
       else if (/travel|departure|flight|airport/i.test(q)) eventType = "travel_departure";
-      console.log("[INTENT-TRACE] Returning from block: member_notification");
+      
       return {
         intent_type: "member_notification_management",
         confidence: 0.9,
@@ -186,9 +169,7 @@ class TmIntentMatcher {
     if (/(?:turn on|turn off|enable|disable|toggle).*(?:traffic|monitoring|auto.?adjust|notification)/i.test(q)) {
       const enableMatch = /turn on|enable/.test(q);
       const disableMatch = /turn off|disable/.test(q);
-      console.log("[INTENT-TRACE] Returning from block: settings_management");
       return {
-        intent_type: "settings_management",
         intent_type: "settings_management",
         confidence: 0.9,
         entities: {
@@ -201,9 +182,7 @@ class TmIntentMatcher {
     if (/(?:set|switch|toggle|change|use).*(?:response|answer|mode).*(?:basic|expanded|detailed|brief)/i.test(q) ||
         /(?:basic|expanded|detailed|brief).*(?:mode|answers?|responses?)/i.test(q)) {
       const mode = q.match(/(?:basic|brief)/i) ? 'basic' : 'expanded';
-      console.log("[INTENT-TRACE] Returning from block: response_mode_toggle");
       return {
-        intent_type: "response_mode_toggle",
         intent_type: "response_mode_toggle",
         confidence: 0.9,
         entities: {
@@ -217,7 +196,6 @@ class TmIntentMatcher {
       const memberName = match ? match[1] : null;
       
       if (memberName) {
-        console.log("[INTENT-TRACE] Returning from block: member_notification_status");
         return {
           intent_type: "member_notification_status",
           confidence: 0.9,
@@ -229,7 +207,6 @@ class TmIntentMatcher {
     }
 
     if (/(?:show|what are|check).*(?:settings|preferences|configuration)/i.test(q)) {
-      console.log("[INTENT-TRACE] Returning from block: settings_query");
       return {
         intent_type: "settings_query",
         confidence: 0.9,
@@ -266,7 +243,7 @@ class TmIntentMatcher {
       if (locationMatch) {
         location = locationMatch[1];
       }
-      console.log("[INTENT-TRACE] Returning from block: travel_time_query");
+      
       return {
         intent_type: "travel_time_query",
         confidence: 0.9,
@@ -353,48 +330,38 @@ class TmIntentMatcher {
     return intent;
   }
 
+
   extractEventEntities(q) {
-    const compromise = require('compromise');
-    
     const entities = {};
     
-    // Extract dates - use regex since compromise dates API changed
-    const dateMatch = q.match(/\b(today|tomorrow|next\s+\w+|this\s+\w+|\d{4}-\d{2}-\d{2})\b/i);
-    if (dateMatch) {
-      entities.date = dateMatch[1];
+    // Extract event description/type
+    const eventMatch = q.match(/(?:create|add|schedule|new|book)\s+(?:a\s+)?([^\s]+(?:\s+[^\s]+)*?)(?:\s+for|\s+at|\s+in|\s+tomorrow|\s+today|$)/i);
+    if (eventMatch) {
+      entities.description = eventMatch[1].trim();
     }
     
-    // Extract times
-    const timeMatch = q.match(/\b(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i);
-    if (timeMatch) {
-      entities.time = timeMatch[1];
-    }
-    
-    // Extract description: text between trigger and first preposition
-    const triggerMatch = q.match(/^(?:create|add|schedule|book)\s+(?:event\s+)?([^\s]+(?:\s+[^\s]+)*?)(?=\s+(?:for|at|in|tomorrow|today)|\s*$)/i);
-    if (triggerMatch) {
-      entities.description = triggerMatch[1];
-    }
-    
-    // Use compromise for better location parsing
-    const doc = compromise(q);
-    const places = doc.places().out('array');
-    if (places.length > 0) {
-      entities.location = places[0];
-    }
-    
-    // Fallback location extraction with better boundary detection
-    if (!entities.location) {
-      const locationMatch = q.match(/(?:at|in)\s+(?:the\s+)?([a-zA-Z][\w\s]+?)(?=\s+(?:for|with)\s+|$)/i);
-      if (locationMatch) {
-        entities.location = locationMatch[1].trim();
-      }
-    }
-    
-    // Extract members: text after "for/with"
-    const memberMatch = q.match(/(?:for|with)\s+(all\s+\w+|[\w\s]+?)(?:\s*$)/i);
+    // Extract member assignments
+    const memberMatch = q.match(/for\s+(.*?)(?:\s+at|\s+in|\s+tomorrow|\s+today|$)/i);
     if (memberMatch) {
-      entities.assigned_members = memberMatch[1];
+      entities.assigned_members = memberMatch[1].trim();
+    }
+    
+    // Extract time/date
+    const timeMatch = q.match(/(?:at|@)\s+(\d{1,2}(?::\d{2})?\s*(?:am|pm)?)/i);
+    if (timeMatch) {
+      entities.time = timeMatch[1].trim();
+    }
+    
+    const dateMatch = q.match(/\b(today|tomorrow|\d{4}-\d{2}-\d{2})\b/i);
+    if (dateMatch) {
+      entities.date = dateMatch[1].trim();
+    }
+    
+    // Extract location
+    // Extract location (exclude time patterns)
+    const locationMatch = q.match(/(?:in|at)\s+([a-zA-Z][^\s]*(?:\s+[a-zA-Z][^\s]*)*)(?:\s+at|\s+for|\s+tomorrow|\s+today|$)/i);
+    if (locationMatch) {
+      entities.location = locationMatch[1].trim();
     }
     
     return entities;
