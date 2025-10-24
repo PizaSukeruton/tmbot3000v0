@@ -359,12 +359,10 @@ class TmIntentMatcher {
     const entities = {};
     
     // Extract dates - use regex since compromise dates API changed
-    const dateMatch = q.match(/\b(today|tomorrow|next\s+\w+|this\s+\w+|\d{4}-\d{2}-\d{2})\b/i);
+    const dateMatch = q.match(/\b(today|tomorrow|yesterday|\w+day\s+next\s+week|\w+day\s+this\s+week|next\s+\w+|this\s+\w+|in\s+\d+\s+days?|\d{4}-\d{2}-\d{2})\b/i);
     if (dateMatch) {
       entities.date = dateMatch[1];
-    }
-    
-    // Extract times
+    }    // Extract times
     const timeMatch = q.match(/\b(\d{1,2}(?::\d{2})?\s*(?:am|pm))\b/i);
     if (timeMatch) {
       entities.time = timeMatch[1];

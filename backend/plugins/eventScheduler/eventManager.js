@@ -98,22 +98,111 @@ class EventManager {
   }
 
   parseNaturalDate(dateString, referenceDate = new Date()) {
-    const lower = dateString.toLowerCase().trim();
+    const input = dateString.toLowerCase().trim();
     
-    if (lower === 'today') {
-      const today = new Date();
-      return this.formatDate(today);
+    // Return null for empty input
+    if (!input) return null;
+    
+    const ref = new Date(referenceDate);
+    
+    // Pattern 1: "today"
+    if (input === 'today') {
+      return this.formatDate(ref);
     }
     
-    if (lower === 'tomorrow') {
-      const tomorrow = new Date();
+    // Pattern 2: "tomorrow"
+    if (input === 'tomorrow') {
+      const tomorrow = new Date(ref);
       tomorrow.setDate(tomorrow.getDate() + 1);
       return this.formatDate(tomorrow);
     }
     
+    // Pattern 3: "in X days"
+    const inDaysMatch = input.match(/^(?:in\s+)?(\d+)\s+days?(?:\s+from\s+now)?$/);
+    if (inDaysMatch) {
+      const daysToAdd = parseInt(inDaysMatch[1], 10);
+      const futureDate = new Date(ref);
+      futureDate.setDate(futureDate.getDate() + daysToAdd);
+      return this.formatDate(futureDate);
+    }
+    
+    // Pattern 4: "next week"
+    if (input === 'next week') {
+      const nextWeek = new Date(ref);
+      const daysUntilMonday = (8 - nextWeek.getDay()) % 7 || 7;
+      nextWeek.setDate(nextWeek.getDate() + daysUntilMonday);
+      return this.formatDate(nextWeek);
+    }
+    
+    // Pattern 5: Day names with modifiers
+    const dayNames = {
+      'sunday': 0, 'sun': 0,
+      'monday': 1, 'mon': 1,
+      'tuesday': 2, 'tue': 2, 'tues': 2,
+      'wednesday': 3, 'wed': 3,
+      'thursday': 4, 'thu': 4, 'thur': 4, 'thurs': 4,
+      'friday': 5, 'fri': 5,
+      'saturday': 6, 'sat': 6
+    };
+    
+    const dayPattern = new RegExp(
+      `^(?:(next|this|coming)\\s+)?` +
+      `(${Object.keys(dayNames).join('|')})` +
+      `(?:\\s+(next\\s+week|this\\s+week))?$`,
+      'i'
+    );
+    
+    const dayMatch = input.match(dayPattern);
+    if (dayMatch) {
+      const modifier = dayMatch[1] || '';
+      const dayName = dayMatch[2].toLowerCase();
+      const weekModifier = dayMatch[3] || '';
+      
+      const targetDayOfWeek = dayNames[dayName];
+      const currentDayOfWeek = ref.getDay();
+      
+      return this.calculateDayOfWeekDate(ref, targetDayOfWeek, currentDayOfWeek, modifier, weekModifier);
+    }
+    
+    // No pattern matched
     return null;
   }
 
+  calculateDayOfWeekDate(referenceDate, targetDayOfWeek, currentDayOfWeek, modifier, weekModifier) {
+    const result = new Date(referenceDate);
+    let daysToAdd = 0;
+    
+    // Handle "next week" or "this week" explicit modifiers
+    if (weekModifier === 'next week') {
+      daysToAdd = (targetDayOfWeek - currentDayOfWeek + 7) % 7;
+      
+    } else if (weekModifier === 'this week') {
+      daysToAdd = (targetDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (daysToAdd === 0) daysToAdd = 0;
+      
+    } else if (modifier === 'next' || modifier === 'coming') {
+      daysToAdd = (targetDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (daysToAdd === 0 || targetDayOfWeek < currentDayOfWeek) {
+        daysToAdd += 7;
+      }
+      
+    } else if (modifier === 'this') {
+      daysToAdd = (targetDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (daysToAdd === 0) {
+        daysToAdd = 0;
+      }
+      
+    } else {
+      // Plain day name like "monday" or "thursday"
+      daysToAdd = (targetDayOfWeek - currentDayOfWeek + 7) % 7;
+      if (daysToAdd === 0) {
+        daysToAdd = 7;
+      }
+    }
+    
+    result.setDate(result.getDate() + daysToAdd);
+    return this.formatDate(result);
+  }
   parseNaturalTime(timeString) {
     const lower = timeString.toLowerCase().trim();
     

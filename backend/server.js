@@ -66,22 +66,25 @@ app.get('/health', (req, res) => {
 });
 
 // Chat endpoint
+// Chat endpoint
 app.post('/api/chat/message', async (req, res) => {
   try {
-    const { content } = req.body;
+    const { content, timezone, userLocation } = req.body;
     
     // Get memberId from authenticated session (stored during login)
     const memberId = req.session.memberId;
     
     if (!memberId) {
       return res.status(401).json({ error: "No active session" });
-    }    if (!memberId || !content) {
+    }
+    
+    if (!memberId || !content) {
       return res.status(400).json({ error: 'memberId and content are required' });
     }
 
     const result = await processor.processMessage(
       content,
-      {},
+      { timezone, userLocation }, // Pass timezone context
       { member_id: memberId }
     );
     res.json(result);

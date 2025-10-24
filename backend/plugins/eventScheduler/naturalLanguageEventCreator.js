@@ -7,7 +7,7 @@ class NaturalLanguageEventCreator {
     this.eventConversation = require("./eventConversation");
   }
 
-  async processNaturalLanguageRequest(entities, sessionId, userId) {
+  async processNaturalLanguageRequest(entities, sessionId, userId, context = {}) {
     try {
       // Check if we have minimum required information
       const hasDescription = entities.description && entities.description.trim();
@@ -26,7 +26,7 @@ class NaturalLanguageEventCreator {
       
       // Process date
       if (entities.date) {
-        const parsedDate = this.eventManager.parseNaturalDate(entities.date);
+        const parsedDate = this.eventManager.parseNaturalDate(entities.date, new Date(), context.timezone);
         if (parsedDate) {
           state.data.date = parsedDate;
         }

@@ -640,7 +640,34 @@
         function showMainScreen() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('mainScreen').style.display = 'block';
+            document.getElementById('usernameDisplay').textContent = currentUser;
+            
+            // Get user location using only browser APIs
+            getSimpleLocation();
+            
             showMainView();
+        }
+
+        function getSimpleLocation() {
+            try {
+                // Use browser's timezone to determine location
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                
+                // Extract location from timezone string
+                if (timezone.includes('Australia/')) {
+                    const city = timezone.split('/')[1];
+                    userLocation = city.replace('_', ' ');
+                } else {
+                    userLocation = timezone;
+                }
+                
+                updateDateTime(); // Refresh display with location
+                
+            } catch (error) {
+                console.log('Location detection error:', error);
+                userLocation = '';
+                updateDateTime();
+            }
         }
         
         function showMainView() {
@@ -768,6 +795,9 @@
             sendButton.textContent = 'Sending...';
             
             try {
+                // Get timezone information (same as location detection)
+                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                
                 const apiUrl = window.location.hostname === 'localhost' ? '/api/chat/message' : 'https://tmbot3000v0.onrender.com/api/chat/message'; 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -776,7 +806,9 @@
                     },
                     credentials: 'include',
                     body: JSON.stringify({
-                        content: message
+                        content: message,
+                        timezone: timezone,
+                        userLocation: userLocation
                     })
                 });                
                 if (!response.ok) {

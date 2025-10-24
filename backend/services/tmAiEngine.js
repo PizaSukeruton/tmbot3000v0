@@ -194,6 +194,16 @@ class TmAiEngine {
       if (normalized.includes(hint) && !out.entities.includes(hint)) {
         out.entities.push(hint);
       }
+    }    // Enhanced date entity extraction for complex expressions like "thursday next week"
+    const datePattern = /\b(today|tomorrow|yesterday|next\s+\w+|this\s+\w+|\w+day|in\s+\d+\s+days?|\w+\s+next\s+week|\w+\s+this\s+week)\b/ig;
+    const dateMatches = normalized.match(datePattern);
+    if (dateMatches) {
+      for (const dateMatch of dateMatches) {
+        const cleanDate = dateMatch.trim().toLowerCase();
+        if (!out.entities.includes(cleanDate)) {
+          out.entities.push(cleanDate);
+        }
+      }
     }
 
     out.normalized = normalized;
@@ -1192,8 +1202,7 @@ class TmAiEngine {
           if (intent.entities && Object.keys(intent.entities).length > 0) {
             // Use NaturalLanguageEventCreator for pre-filling
             const nlCreator = new NaturalLanguageEventCreator();
-            const result = await nlCreator.processNaturalLanguageRequest(intent.entities, sessionId, member.member_id);
-            
+            const result = await nlCreator.processNaturalLanguageRequest(intent.entities, sessionId, member.member_id, context);            
             return {
               type: "event_creation",
               text: result.message
