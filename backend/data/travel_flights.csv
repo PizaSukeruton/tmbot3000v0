@@ -4,6 +4,6 @@ show_id,date,airline,flight_number,departure_city,arrival_city,departure_time,ar
 #605004,,Jetstar,JQ762,Brisbane,Adelaide,2025-10-26T10:00:00,2025-10-26T12:00:00,Australia/Brisbane,Australia/Adelaide,GHI789
 #605005,,Qantas,QF581,Adelaide,Perth,2025-10-28T08:00:00,2025-10-28T10:30:00,Australia/Adelaide,Australia/Perth,JKL012
 #605000,2025-10-13,Qantas,QF1,Sydney,London,2025-10-13T09:00:00,2025-10-14T05:00:00,Australia/Sydney,Europe/London,TEST123
-#605005,Qantas,QF456,Adelaide,Melbourne,2025-10-28T14:00:00,2025-10-28T16:30:00,Australia/Adelaide,Australia/Melbourne,DEF456
+#605005,2025-10-28,Qantas,QF456,Adelaide,Melbourne,2025-10-28T14:00:00,2025-10-28T16:30:00,Australia/Adelaide,Australia/Melbourne,DEF456
 #605007,Qantas,QF789,Melbourne,Sydney,2025-10-31T14:00:00,2025-10-31T15:30:00,Australia/Melbourne,Australia/Sydney,GHI789
 #605009,Qantas,QF012,Sydney,Perth,2025-11-03T09:00:00,2025-11-03T12:00:00,Australia/Sydney,Australia/Perth,JKL012

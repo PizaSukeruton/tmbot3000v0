@@ -1,0 +1,12 @@
+        function getSimpleLocation() {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            console.log('Detected timezone:', timezone);
+            
+            if (timezone.includes('/')) {
+                const parts = timezone.split('/');
+                const city = parts[parts.length - 1];
+                userLocation = city.replace(/_/g, ' ');
+            } else {
+                userLocation = timezone;
+            }
+        }

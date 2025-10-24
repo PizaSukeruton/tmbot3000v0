@@ -127,7 +127,9 @@ class UnifiedEventReader {
   createUnifiedEvent(row, dateColumn, sourceFile) {
     const date = this.parseDate(row[dateColumn]);
     
+    
     return {
+      event_id: row.event_id || `EVT_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       title: this.generateTitle(row, sourceFile),
       date: date,
       time: this.extractTime(row),

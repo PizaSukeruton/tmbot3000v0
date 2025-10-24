@@ -1,9 +1,9 @@
 show_id,item,quantity_sold,price,gross_sales,merch_seller,notes
-#605002,T-Shirt (S),45,40.00,1800.00,Merch Team,Stand location: Gates 2, 5, 8
-#605002,T-Shirt (M),89,40.00,3560.00,Merch Team,Stand location: Gates 2, 5, 8
-#605002,T-Shirt (L),67,40.00,2680.00,Merch Team,Stand location: Gates 2, 5, 8
-#605002,T-Shirt (XL),34,40.00,1360.00,Merch Team,Stand location: Gates 2, 5, 8
-#605002,Hoodie,56,80.00,4480.00,Merch Team,Stand location: Gates 2, 5, 8
-#605002,Poster,123,20.00,2460.00,Merch Team,Stand location: Gates 2, 5, 8
-#605002,Hat,45,35.00,1575.00,Merch Team,Stand location: Gates 2, 5, 8
+#605002,T-Shirt (S),45,40.00,1800.00,Merch Team,"Stand location: Gates 2, 5, 8"
+#605002,T-Shirt (M),89,40.00,3560.00,Merch Team,"Stand location: Gates 2, 5, 8"
+#605002,T-Shirt (L),67,40.00,2680.00,Merch Team,"Stand location: Gates 2, 5, 8"
+#605002,T-Shirt (XL),34,40.00,1360.00,Merch Team,"Stand location: Gates 2, 5, 8"
+#605002,Hoodie,56,80.00,4480.00,Merch Team,"Stand location: Gates 2, 5, 8"
+#605002,Poster,123,20.00,2460.00,Merch Team,"Stand location: Gates 2, 5, 8"
+#605002,Hat,45,35.00,1575.00,Merch Team,"Stand location: Gates 2, 5, 8"
 #605002,Total,459,,17915.00,Jessica Martinez - Lead Merch Seller,Total gross sales for Brisbane show

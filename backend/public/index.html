@@ -648,27 +648,6 @@
             showMainView();
         }
 
-        function getSimpleLocation() {
-            try {
-                // Use browser's timezone to determine location
-                const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-                
-                // Extract location from timezone string
-                if (timezone.includes('Australia/')) {
-                    const city = timezone.split('/')[1];
-                    userLocation = city.replace('_', ' ');
-                } else {
-                    userLocation = timezone;
-                }
-                
-                updateDateTime(); // Refresh display with location
-                
-            } catch (error) {
-                console.log('Location detection error:', error);
-                userLocation = '';
-                updateDateTime();
-            }
-        }
         
         function showMainView() {
             currentView = 'main';
@@ -1107,8 +1086,8 @@
                         </div>
                     </div>
                     <div class="event-actions-row">
-                        <button class="event-btn" onclick="editEvent('${event.id}')">Edit</button>
-                        <button class="event-btn delete" onclick="deleteEvent('${event.id}')">Delete</button>
+                        <button class="event-btn" onclick="editEvent('${event.event_id}')">Edit</button>
+                        <button class="event-btn delete" onclick="deleteEvent('${event.event_id}')">Delete</button>
                     </div>
                 </div>
             `).join('');
@@ -1152,7 +1131,7 @@
                 hour: '2-digit',
                 minute: '2-digit'
             };
-            let timeString = now.toLocaleDateString('en-AU', options);
+            let timeString = now.toLocaleDateString(undefined, options);
             if (userLocation) {
                 timeString += ` • ${userLocation}`;
             }
@@ -1161,6 +1140,19 @@
 
         function testFunction() {
             alert('Test function called - Help feature placeholder');
+        }
+        
+        function getSimpleLocation() {
+            const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            console.log("Detected timezone:", timezone);
+            
+            if (timezone.includes("/")) {
+                const parts = timezone.split("/");
+                const city = parts[parts.length - 1];
+                userLocation = city.replace(/_/g, " ");
+            } else {
+                userLocation = timezone;
+            }
         }
         
 

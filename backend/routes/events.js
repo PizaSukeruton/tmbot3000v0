@@ -59,7 +59,19 @@ router.put("/:id", async (req, res) => {
 // DELETE /api/events/:id - Delete event
 router.delete("/:id", async (req, res) => {
   try {
-    await eventManager.deleteEvent(req.params.id);
+    const allEvents = await unifiedEventReader.getAllEvents();
+    const eventToDelete = allEvents.find(e => e.event_id === req.params.id);
+    
+    if (!eventToDelete) {
+      return res.status(404).json({ error: "Event not found" });
+    }
+    
+    if (eventToDelete.source === 'calendar_events.csv') {
+      await eventManager.deleteEvent(req.params.id);
+    } else {
+      return res.status(400).json({ error: `Cannot delete events from ${eventToDelete.source}. Only calendar_events.csv events can be deleted.` });
+    }
+    
     res.json({ message: "Event deleted successfully" });
   } catch (error) {
     console.error("Error deleting event:", error);
